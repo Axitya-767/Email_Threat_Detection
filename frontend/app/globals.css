@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+}

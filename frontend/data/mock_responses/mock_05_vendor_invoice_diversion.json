@@ -1,0 +1,39 @@
+{
+  "filename": "Updated_Bank_Details_Invoice_88421.eml",
+  "file_size_kb": 94,
+  "sha256": "1f8e5b2a9c4d7063e8a1f5c2d9b6e0a4c7f3d1b8e5a2c9f6d0b4e7a3c8f1b5d2",
+  "sender": { "name": "Suresh Iyer", "email": "accounts@apex-logistics.co.in" },
+  "risk_score": 81,
+  "classification": "payment_diversion",
+  "quadrants": {
+    "header_routing": 20,
+    "auth_failure": 22,
+    "nlp_language": 28,
+    "reputation": 11
+  },
+  "authentication": { "spf": "softfail", "dkim": "fail", "dmarc": "fail" },
+  "trace": [
+    { "hop_order": 1, "ip": "89.32.148.77", "lat": 44.43, "lng": 26.1, "place": "Bucharest, Romania", "note": "Bulletproof hosting origin" },
+    { "hop_order": 2, "ip": "103.86.99.21", "lat": 1.29, "lng": 103.85, "place": "Singapore", "note": "Transit MX" },
+    { "hop_order": 3, "ip": "103.25.60.8", "lat": 18.52, "lng": 73.86, "place": "Pune, India", "note": "Destination mail server" }
+  ],
+  "iocs": {
+    "domain_age_days": 21,
+    "typosquat_target": "apexlogistics.co.in",
+    "artifacts": ["IFSC:YESB0000441", "Reply-To:payments@apex-logistics-billing.com"]
+  },
+  "relationships": {
+    "nodes": [
+      { "id": "ip1", "type": "ip", "label": "89.32.148.77" },
+      { "id": "email1", "type": "email", "label": "Email #312 (vendor bank change)" },
+      { "id": "email2", "type": "email", "label": "Email #305 (cloned invoice thread)" },
+      { "id": "domain1", "type": "domain", "label": "apex-logistics-billing.com" }
+    ],
+    "edges": [
+      { "from": "email1", "to": "ip1", "reason": "same sending IP" },
+      { "from": "email1", "to": "domain1", "reason": "mismatched reply-to" },
+      { "from": "email2", "to": "email1", "reason": "invoice thread clone" }
+    ]
+  },
+  "masked_view_available": true
+}

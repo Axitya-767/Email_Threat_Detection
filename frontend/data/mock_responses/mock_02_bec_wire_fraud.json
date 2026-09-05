@@ -1,0 +1,39 @@
+{
+  "filename": "FW_Urgent_Vendor_Account_Change.eml",
+  "file_size_kb": 48,
+  "sha256": "9e1c6a3f8b2d0475c0e9a4f1b7d3c6e8a2f5b0d4c7e1a9f3b6d8c2e5a0f4b7d1",
+  "sender": { "name": "Ananya Mehta", "email": "ananya.mehta@meridian-infra.com" },
+  "risk_score": 84,
+  "classification": "bec",
+  "quadrants": {
+    "header_routing": 18,
+    "auth_failure": 6,
+    "nlp_language": 42,
+    "reputation": 18
+  },
+  "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
+  "trace": [
+    { "hop_order": 1, "ip": "197.210.53.88", "lat": 6.52, "lng": 3.38, "place": "Lagos, Nigeria", "note": "Session origin before relay" },
+    { "hop_order": 2, "ip": "40.107.8.52", "lat": 1.35, "lng": 103.82, "place": "Singapore", "note": "Compromised Microsoft 365 tenant relay" },
+    { "hop_order": 3, "ip": "49.207.50.12", "lat": 12.97, "lng": 77.59, "place": "Bengaluru, India", "note": "Destination mail server" }
+  ],
+  "iocs": {
+    "domain_age_days": 4018,
+    "typosquat_target": null,
+    "artifacts": ["IFSC:HDFC0002891", "IBAN:DE89370400440532013000"]
+  },
+  "relationships": {
+    "nodes": [
+      { "id": "ip1", "type": "ip", "label": "197.210.53.88" },
+      { "id": "email1", "type": "email", "label": "Email #221 (CFO wire change)" },
+      { "id": "email2", "type": "email", "label": "Email #218 (prior vendor thread)" },
+      { "id": "domain1", "type": "domain", "label": "meridian-infra.com" }
+    ],
+    "edges": [
+      { "from": "email1", "to": "ip1", "reason": "same sending IP" },
+      { "from": "email2", "to": "email1", "reason": "thread hijack" },
+      { "from": "domain1", "to": "email1", "reason": "compromised mailbox" }
+    ]
+  },
+  "masked_view_available": true
+}

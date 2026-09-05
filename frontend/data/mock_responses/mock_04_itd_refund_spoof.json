@@ -1,0 +1,39 @@
+{
+  "filename": "ITD_Refund_Notice_AY2025.eml",
+  "file_size_kb": 186,
+  "sha256": "6d3c9e0a5b8f2147e9c2a6d1f4b8e0c3a7d5f2b9c1e4a8f0d6b3c7e2a5f9b4d8",
+  "sender": { "name": "Income Tax Department", "email": "refunds@incometax-india-gov.in" },
+  "risk_score": 86,
+  "classification": "phishing",
+  "quadrants": {
+    "header_routing": 22,
+    "auth_failure": 27,
+    "nlp_language": 24,
+    "reputation": 13
+  },
+  "authentication": { "spf": "fail", "dkim": "fail", "dmarc": "fail" },
+  "trace": [
+    { "hop_order": 1, "ip": "185.220.101.5", "lat": 52.37, "lng": 4.9, "place": "Amsterdam, Netherlands", "note": "Datacenter flagged" },
+    { "hop_order": 2, "ip": "51.89.42.17", "lat": 51.51, "lng": -0.13, "place": "London, United Kingdom", "note": "Overseas relay" },
+    { "hop_order": 3, "ip": "49.36.80.10", "lat": 28.61, "lng": 77.21, "place": "New Delhi, India", "note": "Destination mail server" }
+  ],
+  "iocs": {
+    "domain_age_days": 9,
+    "typosquat_target": "incometaxindia.gov.in",
+    "artifacts": ["PAN:ABCDE1234F"]
+  },
+  "relationships": {
+    "nodes": [
+      { "id": "ip1", "type": "ip", "label": "185.220.101.5" },
+      { "id": "email1", "type": "email", "label": "Email #108 (Tax refund spoof)" },
+      { "id": "email2", "type": "email", "label": "Email #104 (SBI spoof)" },
+      { "id": "domain1", "type": "domain", "label": "incometax-india-gov.in" }
+    ],
+    "edges": [
+      { "from": "email1", "to": "ip1", "reason": "same sending IP" },
+      { "from": "email2", "to": "ip1", "reason": "same sending IP" },
+      { "from": "domain1", "to": "ip1", "reason": "same registrar" }
+    ]
+  },
+  "masked_view_available": true
+}

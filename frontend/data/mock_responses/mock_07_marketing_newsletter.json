@@ -1,0 +1,39 @@
+{
+  "filename": "Weekly_Product_Digest_Issue_214.eml",
+  "file_size_kb": 412,
+  "sha256": "5a9d2e6b1c8f0472d5a8e3c0f6b2d9a4e1c7f3b0d8a5e2c9f4b1d6a3e7c0f8b2",
+  "sender": { "name": "LumenForge Product", "email": "digest@mail.lumenforge.in" },
+  "risk_score": 18,
+  "classification": "marketing",
+  "quadrants": {
+    "header_routing": 8,
+    "auth_failure": 0,
+    "nlp_language": 4,
+    "reputation": 6
+  },
+  "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
+  "trace": [
+    { "hop_order": 1, "ip": "198.2.185.44", "lat": 33.75, "lng": -84.39, "place": "Atlanta, United States", "note": "Mailchimp commercial ASN" },
+    { "hop_order": 2, "ip": "198.2.177.12", "lat": 41.88, "lng": -87.63, "place": "Chicago, United States", "note": "Bulk ESP relay" },
+    { "hop_order": 3, "ip": "202.83.21.45", "lat": 17.39, "lng": 78.49, "place": "Hyderabad, India", "note": "Destination mail server" }
+  ],
+  "iocs": {
+    "domain_age_days": 4382,
+    "typosquat_target": null,
+    "artifacts": []
+  },
+  "relationships": {
+    "nodes": [
+      { "id": "ip1", "type": "ip", "label": "198.2.185.44" },
+      { "id": "email1", "type": "email", "label": "Email #090 (weekly digest)" },
+      { "id": "email2", "type": "email", "label": "Email #083 (prior digest)" },
+      { "id": "domain1", "type": "domain", "label": "mail.lumenforge.in" }
+    ],
+    "edges": [
+      { "from": "email1", "to": "ip1", "reason": "mailchimp outbound" },
+      { "from": "email2", "to": "ip1", "reason": "same esp pool" },
+      { "from": "domain1", "to": "ip1", "reason": "authenticated bulk sender" }
+    ]
+  },
+  "masked_view_available": true
+}

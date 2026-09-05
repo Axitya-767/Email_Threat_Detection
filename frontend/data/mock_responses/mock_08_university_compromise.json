@@ -1,0 +1,39 @@
+{
+  "filename": "HR_Updated_Payroll_Form.eml",
+  "file_size_kb": 128,
+  "sha256": "3e6b9c0f4a7d1852c6e9b3a0f7d4c1e8a5b2f9d6c3e0a7f4b1d8c5e2a9f6b3d0",
+  "sender": { "name": "Kavita Rao", "email": "kavita.rao@iitd.ac.in" },
+  "risk_score": 74,
+  "classification": "compromised_account",
+  "quadrants": {
+    "header_routing": 12,
+    "auth_failure": 0,
+    "nlp_language": 35,
+    "reputation": 27
+  },
+  "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
+  "trace": [
+    { "hop_order": 1, "ip": "14.162.88.203", "lat": 21.03, "lng": 105.85, "place": "Hanoi, Vietnam", "note": "Impossible-travel login origin" },
+    { "hop_order": 2, "ip": "103.27.9.18", "lat": 28.55, "lng": 77.19, "place": "New Delhi, India", "note": "University authenticated relay" },
+    { "hop_order": 3, "ip": "103.27.9.20", "lat": 28.55, "lng": 77.19, "place": "New Delhi, India", "note": "Destination mail server" }
+  ],
+  "iocs": {
+    "domain_age_days": 4,
+    "typosquat_target": "office.com",
+    "artifacts": ["URL:hxxp://upd-payroll-cdn.net/form.hta"]
+  },
+  "relationships": {
+    "nodes": [
+      { "id": "ip1", "type": "ip", "label": "14.162.88.203" },
+      { "id": "email1", "type": "email", "label": "Email #512 (HR payroll spray)" },
+      { "id": "email2", "type": "email", "label": "Email #509 (same mailbox, prior spray)" },
+      { "id": "domain1", "type": "domain", "label": "upd-payroll-cdn.net" }
+    ],
+    "edges": [
+      { "from": "email1", "to": "ip1", "reason": "impossible travel origin" },
+      { "from": "email2", "to": "ip1", "reason": "same sending IP" },
+      { "from": "email1", "to": "domain1", "reason": "malware payload host" }
+    ]
+  },
+  "masked_view_available": true
+}

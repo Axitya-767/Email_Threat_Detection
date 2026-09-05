@@ -1,0 +1,39 @@
+{
+  "filename": "Q3_AllHands_Internal_Memo.eml",
+  "file_size_kb": 32,
+  "sha256": "2a8f4d1c7e9b3065a4c8e2f1d7b9c0a3e6f2d5b8c1a4e7f0d3b6c9a2e5f8b1d4",
+  "sender": { "name": "Priya Nair", "email": "priya.nair@lumenforge.in" },
+  "risk_score": 7,
+  "classification": "legitimate",
+  "quadrants": {
+    "header_routing": 2,
+    "auth_failure": 0,
+    "nlp_language": 3,
+    "reputation": 2
+  },
+  "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
+  "trace": [
+    { "hop_order": 1, "ip": "209.85.220.41", "lat": 37.42, "lng": -122.08, "place": "Mountain View, United States", "note": "Google Workspace outbound" },
+    { "hop_order": 2, "ip": "74.125.24.26", "lat": 1.35, "lng": 103.82, "place": "Singapore", "note": "Google Asia hop" },
+    { "hop_order": 3, "ip": "202.83.21.45", "lat": 17.39, "lng": 78.49, "place": "Hyderabad, India", "note": "Destination mail server" }
+  ],
+  "iocs": {
+    "domain_age_days": 4382,
+    "typosquat_target": null,
+    "artifacts": []
+  },
+  "relationships": {
+    "nodes": [
+      { "id": "ip1", "type": "ip", "label": "209.85.220.41" },
+      { "id": "email1", "type": "email", "label": "Email #055 (internal memo)" },
+      { "id": "email2", "type": "email", "label": "Email #041 (prior all-hands)" },
+      { "id": "domain1", "type": "domain", "label": "lumenforge.in" }
+    ],
+    "edges": [
+      { "from": "email1", "to": "ip1", "reason": "google workspace relay" },
+      { "from": "email2", "to": "domain1", "reason": "same corporate sender" },
+      { "from": "domain1", "to": "ip1", "reason": "authorized google mx" }
+    ]
+  },
+  "masked_view_available": true
+}
