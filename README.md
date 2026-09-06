@@ -62,8 +62,9 @@ git commit -m "short clear description of what changed"
 # 4. Push your branch
 git push origin feature/frontend-<yourpart>
 
-# 5. Open a Pull Request into `feature/frontend` (not develop, not main)
-#    Tag Person 5 as reviewer — they own app/page.js and final assembly.
+# 5. Open a Pull Request into `develop` — this is the single integration
+#    branch, everyone's work lands here directly. Tag Person 5 as reviewer
+#    (they own app/page.js and are responsible for catching layout breaks).
 
 # 6. Before opening the PR, always re-sync so your branch isn't stale:
 git checkout feature/frontend-<yourpart>
@@ -93,7 +94,7 @@ git merge origin/develop
 
 > ⚠️ This table reflects the current stub state (data/page-state fixed, individual components not yet built for real). Once a component is built for real, regenerate its row — see Section 7.
 
-Every component receives one prop: `data` (the full mock JSON object). Don't fetch independently, don't add global state — read straight from `data.<field>`.
+Every component receives two props: `data` (the current mock scenario object) and `masked` (boolean, from the privacy toggle). `PrivacyToggle` additionally receives `setMasked` to control that state. Don't fetch independently, don't add other global state — read straight from `data.<field>` and branch on `masked` where a component needs to hide sensitive detail (e.g. sender name/email).
 
 ---
 
@@ -105,8 +106,8 @@ The mock schema lives at `data/mock_responses/` (`mock_01_sbi_kyc.json` through 
 
 When you prompt your AI coding tool to build your real component, **always include these 5 things** or the output will drift from the shared contract:
 
-1. Reference the exact field(s) you're consuming (from the table above) — paste the relevant snippet of `analysis_mock.json`, don't describe it from memory.
-2. State you only use the `data` prop — no fetching, no new global state.
+1. Reference the exact field(s) you're consuming (from the table above) — paste the relevant snippet of the mock JSON, don't describe it from memory.
+2. State you use the `data` prop (and `masked`, if your component shows anything sensitive — e.g. sender name/email/domain) — no fetching, no new global state. If you're building `PrivacyToggle`, also mention `setMasked`.
 3. State to use the existing dark theme tokens from `tailwind.config.js` (surface/border/text/accent) — don't let it invent new colors.
 4. State to match the existing card shell conventions (rounded-lg, border-muted, bg-surface) already used in the stub, so it stays visually consistent in the grid.
 5. State explicitly not to touch `app/page.js` or any other component file.
@@ -117,9 +118,13 @@ When you prompt your AI coding tool to build your real component, **always inclu
 @components/<YourComponent>.jsx @lib/schema.js
 
 Build the real <YourComponent> component. Rules:
-- Only use the `data` prop passed in — don't fetch, don't add global state.
+- This component receives two props: `data` (current mock scenario) and
+  `masked` (boolean). [If applicable: also receives `setMasked`.]
+- Don't fetch, don't add other global state.
 - data.<your field> looks like: <paste the relevant JSON snippet here>
 - [Describe what to actually render/do with that field]
+- [If this component shows anything sensitive — sender name, email, domain —
+  describe what to show/hide when `masked` is true vs false]
 - Use the existing dark theme tokens from tailwind.config.js for any UI chrome
   (card border, background, labels) — don't introduce new colors.
 - Match the existing card shell conventions (rounded-lg, border-muted,
@@ -138,7 +143,10 @@ grid layout without breaking anything around it.
 @components/MapView.jsx @lib/schema.js
 
 Build the real MapView component. Rules:
-- Only use the `data` prop passed in — don't fetch, don't add global state.
+- This component receives two props: `data` (current mock scenario) and
+  `masked` (boolean) — MapView doesn't need to react to `masked` since IP/geo
+  data isn't personal to a sender, but keep the prop in the signature.
+- Don't fetch, don't add other global state.
 - data.trace is an array of hops: {hop_order, ip, lat, lng, place, note}.
   Plot each as a marker on a Leaflet map and draw a line connecting them in
   hop_order sequence.
