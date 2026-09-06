@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -18,35 +20,43 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const caseParam = searchParams.get("case");
 
-  // Determine initial case from URL query param or default to first
-  const initialCase =
-    CASES_LIST.find(
-      (c) =>
-        c.slug === caseParam ||
-        c.id.toLowerCase() === caseParam?.toLowerCase() ||
-        c.data.sha256 === caseParam
-    ) || CASES_LIST[0];
+function subscribe() {
+  return () => {};
+}
 
-  const [data, setData] = useState(initialCase.data);
+function getAuthSnapshot() {
+  return sessionStorage.getItem("isAuthenticated") === "true";
+}
+
+function getServerAuthSnapshot() {
+  return false;
+}
+
+export default function Home() {
+  const router = useRouter();
+  const isAuthenticated = useSyncExternalStore(subscribe, getAuthSnapshot, getServerAuthSnapshot);
+  const [data, setData] = useState(scenarios[0].data);
   const [masked, setMasked] = useState(false);
 
-  // Sync if URL query param changes
   useEffect(() => {
-    if (caseParam) {
-      const match = CASES_LIST.find(
-        (c) =>
-          c.slug === caseParam ||
-          c.id.toLowerCase() === caseParam.toLowerCase() ||
-          c.data.sha256 === caseParam
-      );
-      if (match) {
-        setData(match.data);
-      }
+    if (!isAuthenticated) {
+      router.replace("/login");
     }
-  }, [caseParam]);
+  }, [isAuthenticated, router]);
 
-  const activeCaseMeta =
-    CASES_LIST.find((c) => c.data.sha256 === data?.sha256) || CASES_LIST[0];
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-canvas">
+        <div className="flex items-center gap-2 text-xs text-dim">
+          <svg className="h-4 w-4 animate-spin text-accent" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span>Redirecting to authentication portal...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6">
