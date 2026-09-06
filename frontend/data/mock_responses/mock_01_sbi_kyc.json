@@ -35,5 +35,9 @@
       { "from": "domain1", "to": "ip1", "reason": "same registrar" }
     ]
   },
-  "masked_view_available": true
+  "masked_view_available": true,
+  "nlp_findings": [
+    { "phrase": "your account will be suspended within 24 hours", "label": "urgency", "confidence": 0.91 },
+    { "phrase": "verify your KYC details immediately", "label": "credential_request", "confidence": 0.87 }
+  ]
 }

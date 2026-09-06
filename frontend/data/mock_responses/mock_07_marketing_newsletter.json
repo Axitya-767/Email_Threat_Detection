@@ -35,5 +35,6 @@
       { "from": "domain1", "to": "ip1", "reason": "authenticated bulk sender" }
     ]
   },
-  "masked_view_available": true
+  "masked_view_available": true,
+  "nlp_findings": []
 }

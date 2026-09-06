@@ -51,6 +51,18 @@ function DashboardContent() {
   const data = activeCase?.data;
   const activeCaseMeta = activeCase;
   const [masked, setMasked] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = (window.scrollY || document.documentElement.scrollTop || 0) > 0;
+      setIsScrolled(scrolled);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -73,70 +85,79 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <header className="mb-6 flex flex-col gap-3">
-        {/* Header Top Bar */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-base font-semibold text-ink">
-              Email Threat Intelligence & Forensic Platform
-            </h1>
-            <p className="text-xs text-dim">
-              Interactive case analysis, telemetry hops, and IOC graph exploration
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
-            <PrivacyToggle data={data} masked={masked} setMasked={setMasked} />
-            <ReportButton data={data} masked={masked} />
-          </div>
-        </div>
-
-        {/* Active Case Banner & Cases Directory Navigation */}
-        <div className="flex flex-col gap-2.5 rounded-xl border border-edge bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2.5 text-xs">
-            <span className="font-semibold uppercase tracking-wider text-[11px] text-dim">
-              Active Case:
-            </span>
-            <span className="font-semibold text-ink">
-              {activeCaseMeta.name}
-            </span>
-            <span className="font-mono text-[11px] text-accent">
-              [{activeCaseMeta.id}]
-            </span>
-            <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${getRiskBadgeClasses(
-                data?.risk_score ?? 0
-              )}`}
-            >
-              {data?.risk_score ?? 0} Risk
-            </span>
+    <div className="min-h-screen">
+      {/* Pinned Sticky Top Section */}
+      <header
+        className={`sticky top-0 z-30 bg-canvas border-b px-6 pt-5 pb-4 transition-all duration-200 ${
+          isScrolled
+            ? "border-edge shadow-lg shadow-black/40"
+            : "border-edge/50 shadow-none"
+        }`}
+      >
+        <div className="flex flex-col gap-3">
+          {/* Header Top Bar */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-base font-semibold text-ink">
+                Email Threat Intelligence & Forensic Platform
+              </h1>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+              <PrivacyToggle data={data} masked={masked} setMasked={setMasked} />
+              <ReportButton data={data} masked={masked} />
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/cases"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-xs font-medium text-dim hover:border-accent hover:text-accent transition-colors"
-            >
-              <FolderKanban className="h-3.5 w-3.5" />
-              <span>Browse All Cases</span>
-              <ArrowRight className="h-3 w-3" />
-            </Link>
+          {/* Active Case Banner & Cases Directory Navigation */}
+          <div className="flex flex-col gap-2.5 rounded-xl border border-edge bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+              <span className="font-semibold uppercase tracking-wider text-[11px] text-dim">
+                Active Case:
+              </span>
+              <span className="font-semibold text-ink">
+                {activeCaseMeta.name}
+              </span>
+              <span className="font-mono text-[11px] text-accent">
+                [{activeCaseMeta.id}]
+              </span>
+              <span
+                className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${getRiskBadgeClasses(
+                  data?.risk_score ?? 0
+                )}`}
+              >
+                {data?.risk_score ?? 0} Risk
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Link
+                href="/cases"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-xs font-medium text-dim hover:border-accent hover:text-accent transition-colors"
+              >
+                <FolderKanban className="h-3.5 w-3.5" />
+                <span>Browse All Cases</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <UploadPanel data={data} masked={masked} setMasked={setMasked} />
-        <ScoreBreakdown data={data} masked={masked} />
-        <div className="flex flex-col gap-4">
-          <AuthStatusCard data={data} masked={masked} />
-          <AttributionVerdict data={data} masked={masked} />
+      {/* Main Dashboard Content */}
+      <div className="p-6">
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <UploadPanel data={data} masked={masked} setMasked={setMasked} />
+          <ScoreBreakdown data={data} masked={masked} />
+          <div className="flex flex-col gap-4">
+            <AuthStatusCard data={data} masked={masked} />
+            <AttributionVerdict data={data} masked={masked} />
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <MapView data={data} masked={masked} />
-        <GraphView data={data} masked={masked} />
+        <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
+          <MapView data={data} masked={masked} />
+          <GraphView data={data} masked={masked} />
+        </div>
       </div>
     </div>
   );

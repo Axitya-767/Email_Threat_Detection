@@ -35,5 +35,9 @@
       { "from": "email2", "to": "email1", "reason": "invoice thread clone" }
     ]
   },
-  "masked_view_available": true
+  "masked_view_available": true,
+  "nlp_findings": [
+    { "phrase": "remit all outstanding invoices to our updated bank account", "label": "financial_diversion", "confidence": 0.92 },
+    { "phrase": "do not use previous banking instructions due to ongoing audit", "label": "deception", "confidence": 0.86 }
+  ]
 }
