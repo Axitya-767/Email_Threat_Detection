@@ -69,36 +69,47 @@ function NavIcon({ name }) {
   );
 }
 
+import SidebarProfile from "./SidebarProfile";
+
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-[220px] shrink-0 flex-col border-r border-edge bg-surface px-4 py-5">
-      <Link href="/" className="mb-8 block text-sm font-semibold tracking-wide text-ink hover:text-accent transition-colors">
-        Email Forensics
-      </Link>
-      <nav className="flex flex-col gap-1">
-        {navItems.map((item) => {
-          const isActive =
-            (item.label === "Dashboard" && pathname === "/") ||
-            (item.label === "Cases" && (pathname === "/cases" || pathname?.startsWith("/cases/")));
+    <aside className="sticky top-0 flex h-screen w-[220px] shrink-0 flex-col justify-between border-r border-edge bg-surface px-4 py-5">
+      <div>
+        <Link
+          href="/"
+          className="mb-8 block text-sm font-semibold tracking-wide text-ink hover:text-accent transition-colors"
+        >
+          Email Forensics
+        </Link>
+        <nav className="flex flex-col gap-1">
+          {navItems.map((item) => {
+            const isActive =
+              (item.label === "Dashboard" && pathname === "/") ||
+              (item.label === "Cases" && (pathname === "/cases" || pathname?.startsWith("/cases/")));
 
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-canvas text-accent"
-                  : "text-dim hover:bg-canvas/50 hover:text-ink"
-              }`}
-            >
-              <NavIcon name={item.label} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-canvas text-accent"
+                    : "text-dim hover:bg-canvas/50 hover:text-ink"
+                }`}
+              >
+                <NavIcon name={item.label} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="pt-4 border-t border-edge/60">
+        <SidebarProfile />
+      </div>
     </aside>
   );
 }

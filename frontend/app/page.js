@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useSyncExternalStore, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FolderKanban, ArrowRight } from "lucide-react";
 import AuthStatusCard from "../components/AuthStatusCard";
@@ -16,15 +14,14 @@ import ScoreBreakdown from "../components/ScoreBreakdown";
 import UploadPanel from "../components/UploadPanel";
 import { CASES_LIST, getRiskBadgeClasses } from "../lib/cases";
 
-function DashboardContent() {
-  const searchParams = useSearchParams();
-  const caseParam = searchParams.get("case");
-
-function subscribe() {
-  return () => {};
+function subscribe(callback) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
 }
 
 function getAuthSnapshot() {
+  if (typeof window === "undefined") return false;
   return sessionStorage.getItem("isAuthenticated") === "true";
 }
 
@@ -32,10 +29,27 @@ function getServerAuthSnapshot() {
   return false;
 }
 
-export default function Home() {
+function DashboardContent() {
   const router = useRouter();
-  const isAuthenticated = useSyncExternalStore(subscribe, getAuthSnapshot, getServerAuthSnapshot);
-  const [data, setData] = useState(scenarios[0].data);
+  const searchParams = useSearchParams();
+  const caseParam = searchParams.get("case");
+  const isAuthenticated = useSyncExternalStore(
+    subscribe,
+    getAuthSnapshot,
+    getServerAuthSnapshot
+  );
+
+  // Determine active case from URL query param or default to first
+  const activeCase =
+    CASES_LIST.find(
+      (c) =>
+        c.slug === caseParam ||
+        c.id.toLowerCase() === caseParam?.toLowerCase() ||
+        c.data?.sha256 === caseParam
+    ) || CASES_LIST[0];
+
+  const data = activeCase?.data;
+  const activeCaseMeta = activeCase;
   const [masked, setMasked] = useState(false);
 
   useEffect(() => {
