@@ -2,32 +2,23 @@
 
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { FolderKanban, ArrowRight } from "lucide-react";
 import AuthStatusCard from "../components/AuthStatusCard";
+import AttributionVerdict from "../components/AttributionVerdict";
 import GraphView from "../components/GraphView";
 import MapView from "../components/MapView";
 import PrivacyToggle from "../components/PrivacyToggle";
 import ReportButton from "../components/ReportButton";
 import ScoreBreakdown from "../components/ScoreBreakdown";
 import UploadPanel from "../components/UploadPanel";
-import mock01 from "../data/mock_responses/mock_01_sbi_kyc.json";
-import mock02 from "../data/mock_responses/mock_02_bec_wire_fraud.json";
-import mock03 from "../data/mock_responses/mock_03_clean_internal_memo.json";
-import mock04 from "../data/mock_responses/mock_04_itd_refund_spoof.json";
-import mock05 from "../data/mock_responses/mock_05_vendor_invoice_diversion.json";
-import mock06 from "../data/mock_responses/mock_06_it_helpdesk_harvest.json";
-import mock07 from "../data/mock_responses/mock_07_marketing_newsletter.json";
-import mock08 from "../data/mock_responses/mock_08_university_compromise.json";
+import { CASES_LIST, getRiskBadgeClasses } from "../lib/cases";
 
-const scenarios = [
-  { name: "SBI KYC Scam", data: mock01 },
-  { name: "BEC Wire Fraud", data: mock02 },
-  { name: "Clean Internal Memo", data: mock03 },
-  { name: "ITD Refund Spoof", data: mock04 },
-  { name: "Vendor Invoice Diversion", data: mock05 },
-  { name: "IT Helpdesk Harvest", data: mock06 },
-  { name: "Marketing Newsletter", data: mock07 },
-  { name: "University Compromise", data: mock08 },
-];
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const caseParam = searchParams.get("case");
 
 function subscribe() {
   return () => {};
@@ -69,41 +60,64 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-6">
-      <header className="mb-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-base font-medium text-ink">
-            Email Threat Intelligence & Forensic Platform
-          </h1>
-          <div className="flex shrink-0 items-center gap-2">
+      <header className="mb-6 flex flex-col gap-3">
+        {/* Header Top Bar */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-base font-semibold text-ink">
+              Email Threat Intelligence & Forensic Platform
+            </h1>
+            <p className="text-xs text-dim">
+              Interactive case analysis, telemetry hops, and IOC graph exploration
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
             <PrivacyToggle data={data} masked={masked} setMasked={setMasked} />
             <ReportButton data={data} masked={masked} />
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {scenarios.map((scenario) => {
-            const active = data.sha256 === scenario.data.sha256;
-            return (
-              <button
-                key={scenario.data.sha256}
-                type="button"
-                onClick={() => setData(scenario.data)}
-                className={`rounded-lg border px-3 py-1.5 text-xs ${
-                  active
-                    ? "border-accent bg-surface text-accent"
-                    : "border-edge bg-surface text-dim"
-                }`}
-              >
-                {scenario.name}
-              </button>
-            );
-          })}
+
+        {/* Active Case Banner & Cases Directory Navigation */}
+        <div className="flex flex-col gap-2.5 rounded-xl border border-edge bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+            <span className="font-semibold uppercase tracking-wider text-[11px] text-dim">
+              Active Case:
+            </span>
+            <span className="font-semibold text-ink">
+              {activeCaseMeta.name}
+            </span>
+            <span className="font-mono text-[11px] text-accent">
+              [{activeCaseMeta.id}]
+            </span>
+            <span
+              className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${getRiskBadgeClasses(
+                data?.risk_score ?? 0
+              )}`}
+            >
+              {data?.risk_score ?? 0} Risk
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/cases"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-xs font-medium text-dim hover:border-accent hover:text-accent transition-colors"
+            >
+              <FolderKanban className="h-3.5 w-3.5" />
+              <span>Browse All Cases</span>
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
         </div>
       </header>
 
       <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         <UploadPanel data={data} masked={masked} setMasked={setMasked} />
         <ScoreBreakdown data={data} masked={masked} />
-        <AuthStatusCard data={data} masked={masked} />
+        <div className="flex flex-col gap-4">
+          <AuthStatusCard data={data} masked={masked} />
+          <AttributionVerdict data={data} masked={masked} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -113,3 +127,18 @@ export default function Home() {
     </div>
   );
 }
+
+export default function Home() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center text-xs text-dim">
+          Loading forensic dashboard...
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
