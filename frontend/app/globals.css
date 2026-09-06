@@ -9,3 +9,8 @@ body {
   background-color: var(--color-canvas);
   color: var(--color-ink);
 }
+
+/* Hide dashboard sidebar on login/auth page */
+body:has([data-auth-page="true"]) aside {
+  display: none !important;
+}
