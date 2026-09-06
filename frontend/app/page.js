@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AuthStatusCard from "../components/AuthStatusCard";
+import AttributionVerdict from "../components/AttributionVerdict";
 import GraphView from "../components/GraphView";
 import MapView from "../components/MapView";
 import PrivacyToggle from "../components/PrivacyToggle";
@@ -68,7 +69,10 @@ export default function Home() {
       <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         <UploadPanel data={data} masked={masked} />
         <ScoreBreakdown data={data} masked={masked} />
-        <AuthStatusCard data={data} masked={masked} />
+        <div className="flex flex-col gap-4">
+          <AuthStatusCard data={data} masked={masked} />
+          <AttributionVerdict data={data} masked={masked} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
