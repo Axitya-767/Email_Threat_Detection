@@ -66,7 +66,7 @@ export default function Home() {
       </header>
 
       <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <UploadPanel data={data} masked={masked} />
+        <UploadPanel data={data} masked={masked} setMasked={setMasked} />
         <ScoreBreakdown data={data} masked={masked} />
         <AuthStatusCard data={data} masked={masked} />
       </div>
