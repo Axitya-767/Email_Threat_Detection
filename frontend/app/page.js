@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AuthStatusCard from "../components/AuthStatusCard";
+import DomainIntelCard from "../components/DomainIntelCard";
 import GraphView from "../components/GraphView";
 import MapView from "../components/MapView";
 import PrivacyToggle from "../components/PrivacyToggle";
@@ -65,10 +66,11 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <UploadPanel data={data} masked={masked} setMasked={setMasked} />
         <ScoreBreakdown data={data} masked={masked} />
         <AuthStatusCard data={data} masked={masked} />
+        <DomainIntelCard data={data} masked={masked} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
