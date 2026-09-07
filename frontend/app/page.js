@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FolderKanban, ArrowRight } from "lucide-react";
 import AuthStatusCard from "../components/AuthStatusCard";
+import DomainIntelCard from "../components/DomainIntelCard";
 import AttributionVerdict from "../components/AttributionVerdict";
 import GraphView from "../components/GraphView";
 import MapView from "../components/MapView";
@@ -151,6 +152,7 @@ function DashboardContent() {
           <div className="flex flex-col gap-4">
             <AuthStatusCard data={data} masked={masked} />
             <AttributionVerdict data={data} masked={masked} />
+            <DomainIntelCard data={data} masked={masked} />
           </div>
         </div>
 
