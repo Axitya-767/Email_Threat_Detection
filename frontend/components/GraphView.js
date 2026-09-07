@@ -303,7 +303,7 @@ export default function GraphView({ data, masked }) {
   };
 
   return (
-    <div className="flex min-h-[360px] flex-col rounded-lg border border-edge bg-surface p-4">
+    <div className="flex h-full min-h-[360px] flex-col rounded-lg border border-edge bg-surface p-4">
       {/* Top Header */}
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>

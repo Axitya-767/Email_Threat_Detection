@@ -3,19 +3,20 @@ const PROTOCOLS = [
     key: "spf",
     name: "SPF",
     fullName: "Sender Policy Framework",
-    description: "Checks whether the sending host is authorized for the claimed domain.",
+    description: "Verifies sending host authorization against domain MX/SPF records.",
   },
   {
     key: "dkim",
     name: "DKIM",
     fullName: "DomainKeys Identified Mail",
-    description: "Verifies the message cryptographic signature against the domain key.",
+    description: "Validates cryptographic signature integrity against domain public key.",
   },
   {
     key: "dmarc",
     name: "DMARC",
-    fullName: "Domain-based Message Authentication",
-    description: "Aligns SPF/DKIM results with the domain’s published policy.",
+    fullName: "Domain Alignment Policy",
+    description: "Enforces alignment of SPF/DKIM authentication with sender domain policy.",
+    isPolicy: true,
   },
 ];
 
@@ -48,36 +49,36 @@ function normalizeStatus(raw) {
 function toneClasses(tone) {
   if (tone === "pass") {
     return {
-      pip: "bg-risk-green",
-      badge: "border-risk-green/40 bg-canvas text-risk-green",
       bar: "bg-risk-green",
+      badge: "border-risk-green/30 bg-risk-green/10 text-risk-green",
+      text: "text-risk-green",
     };
   }
   if (tone === "fail") {
     return {
-      pip: "bg-risk-red",
-      badge: "border-risk-red/40 bg-canvas text-risk-red",
       bar: "bg-risk-red",
+      badge: "border-risk-red/30 bg-risk-red/10 text-risk-red",
+      text: "text-risk-red",
     };
   }
   if (tone === "warn") {
     return {
-      pip: "bg-risk-amber",
-      badge: "border-risk-amber/40 bg-canvas text-risk-amber",
       bar: "bg-risk-amber",
+      badge: "border-risk-amber/30 bg-risk-amber/10 text-risk-amber",
+      text: "text-risk-amber",
     };
   }
   return {
-    pip: "bg-dim",
+    bar: "bg-dim/40",
     badge: "border-edge bg-canvas text-dim",
-    bar: "bg-dim",
+    text: "text-dim",
   };
 }
 
 function StatusIcon({ tone }) {
   const common = {
-    width: 12,
-    height: 12,
+    width: 11,
+    height: 11,
     viewBox: "0 0 24 24",
     fill: "none",
     stroke: "currentColor",
@@ -124,10 +125,10 @@ function summaryCopy(results) {
   const other = results.length - failed - passed - warn;
 
   if (failed === results.length) {
-    return `${failed} of ${results.length} authentication checks failed`;
+    return `${failed}/${results.length} failed`;
   }
   if (passed === results.length) {
-    return `All ${results.length} authentication checks passed`;
+    return `${passed}/${results.length} passed`;
   }
 
   const parts = [];
@@ -135,16 +136,14 @@ function summaryCopy(results) {
   if (passed > 0) parts.push(`${passed} passed`);
   if (warn > 0) parts.push(`${warn} soft fail`);
   if (other > 0) parts.push(`${other} inconclusive`);
-  if (parts.length > 0) {
-    return parts.join(" · ");
-  }
-  return `${results.length} authentication checks with no result`;
+  return parts.join(" · ");
 }
 
 export default function AuthStatusCard({ data, masked: _masked }) {
   const authentication = data?.authentication ?? {};
   const results = PROTOCOLS.map((protocol) => ({
     ...protocol,
+    rawVal: authentication[protocol.key],
     status: normalizeStatus(authentication[protocol.key]),
   }));
   const failed = results.filter((item) => item.status.tone === "fail").length;
@@ -157,10 +156,10 @@ export default function AuthStatusCard({ data, masked: _masked }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-sm font-medium text-ink">Authentication Status</h2>
-            <p className="mt-0.5 text-xs text-dim">SPF / DKIM / DMARC checks</p>
+            <p className="mt-0.5 text-xs text-dim">SPF / DKIM / DMARC verification</p>
           </div>
           <span
-            className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${
+            className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-xs font-medium ${
               allFailed
                 ? "border-risk-red/40 bg-canvas text-risk-red"
                 : noneFailed
@@ -173,41 +172,70 @@ export default function AuthStatusCard({ data, masked: _masked }) {
         </div>
       </header>
 
-      <ul className="flex flex-1 flex-col gap-2">
+      <ul className="flex flex-1 flex-col gap-1.5">
         {results.map((item) => {
           const colors = toneClasses(item.status.tone);
+          const isDmarc = item.isPolicy;
+
           return (
             <li
               key={item.key}
-              className="flex items-stretch gap-3 rounded-lg border border-edge bg-canvas px-3 py-2"
+              className={`group relative flex flex-col rounded-md border bg-canvas transition-all duration-200 ease-in-out hover:border-accent/40 hover:bg-canvas/90 ${
+                isDmarc ? "mt-1 border-edge/90" : "border-edge"
+              }`}
             >
-              <span className={`w-0.5 shrink-0 self-stretch rounded-full ${colors.bar}`} />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${colors.pip}`} />
-                    <span className="text-sm font-medium text-ink">{item.name}</span>
-                    <span className="hidden truncate text-xs text-dim sm:inline">
-                      {item.fullName}
-                    </span>
-                  </div>
-                  <span
-                    className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${colors.badge}`}
-                  >
-                    <StatusIcon tone={item.status.tone} />
-                    {item.status.label}
+              {/* Compact Default Header Row */}
+              <div className="flex items-center justify-between gap-2.5 px-3 py-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${colors.bar}`} />
+                  <span className="font-mono text-xs font-semibold text-ink">
+                    {item.name}
                   </span>
+                  <span className="hidden truncate text-[11px] text-dim sm:inline">
+                    {item.fullName}
+                  </span>
+                  {isDmarc && (
+                    <span className="rounded border border-edge bg-surface px-1.5 py-0.2 font-mono text-[9px] uppercase text-accent/90">
+                      Policy
+                    </span>
+                  )}
                 </div>
-                <p className="mt-1 text-xs leading-snug text-dim">{item.description}</p>
+
+                <span
+                  className={`inline-flex shrink-0 items-center gap-1 rounded border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${colors.badge}`}
+                >
+                  <StatusIcon tone={item.status.tone} />
+                  {item.status.label}
+                </span>
+              </div>
+
+              {/* Smooth Hover-Revealed Forensic Detail Drawer */}
+              <div className="grid grid-rows-[0fr] transition-all duration-200 ease-in-out group-hover:grid-rows-[1fr]">
+                <div className="overflow-hidden">
+                  <div className="border-t border-edge/40 bg-surface/50 px-3 py-2 text-xs">
+                    <p className="text-[11px] leading-relaxed text-dim">
+                      {item.description}
+                    </p>
+                    <div className="mt-1.5 flex items-center justify-between font-mono text-[10px] text-dim/90">
+                      <span>
+                        Result: <strong className={colors.text}>{item.status.label.toUpperCase()}</strong>
+                      </span>
+                      <span>Field: authentication.{item.key}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </li>
           );
         })}
       </ul>
 
-      <p className={`mt-3 text-xs ${allFailed ? "text-risk-red" : noneFailed ? "text-risk-green" : "text-dim"}`}>
-        {summaryCopy(results)}
-      </p>
+      <div className="mt-3 flex items-center justify-between border-t border-edge/50 pt-2 text-xs font-mono text-dim">
+        <span>Verification Telemetry</span>
+        <span className={allFailed ? "text-risk-red font-semibold" : noneFailed ? "text-risk-green font-semibold" : "text-risk-amber"}>
+          {summaryCopy(results)}
+        </span>
+      </div>
     </section>
   );
 }

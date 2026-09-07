@@ -35,5 +35,9 @@
       { "from": "domain1", "to": "ip1", "reason": "same registrar" }
     ]
   },
-  "masked_view_available": true
+  "masked_view_available": true,
+  "nlp_findings": [
+    { "phrase": "click here to claim your pending tax refund of Rs 42,500", "label": "financial_lure", "confidence": 0.93 },
+    { "phrase": "unclaimed refunds will be cancelled within 48 hours", "label": "urgency", "confidence": 0.88 }
+  ]
 }

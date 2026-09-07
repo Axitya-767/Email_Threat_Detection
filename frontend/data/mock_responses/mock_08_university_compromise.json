@@ -35,5 +35,9 @@
       { "from": "email1", "to": "domain1", "reason": "malware payload host" }
     ]
   },
-  "masked_view_available": true
+  "masked_view_available": true,
+  "nlp_findings": [
+    { "phrase": "fill and submit the mandatory payroll direct deposit form", "label": "credential_request", "confidence": 0.92 },
+    { "phrase": "failure to complete before payroll cutoff will delay salary", "label": "urgency", "confidence": 0.88 }
+  ]
 }

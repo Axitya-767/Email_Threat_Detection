@@ -73,7 +73,7 @@ function RoutingMap({ hops, rl, L }) {
       zoom={4}
       scrollWheelZoom
       className="h-full w-full"
-      style={{ height: 280, width: "100%", background: "#1b1e24" }}
+      style={{ height: "100%", width: "100%", background: "#1b1e24" }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -164,7 +164,7 @@ export default function MapView({ data, masked }) {
   }, []);
 
   return (
-    <div className="flex min-h-[220px] flex-col rounded-lg border border-edge bg-surface p-4">
+    <div className="flex h-full min-h-[360px] flex-col rounded-lg border border-edge bg-surface p-4">
       <style>{`
         .hop-marker-icon {
           background: none;
@@ -204,11 +204,11 @@ export default function MapView({ data, masked }) {
       </div>
 
       {hops.length === 0 ? (
-        <div className="mt-3 flex h-[280px] items-center justify-center rounded-md border border-edge bg-canvas text-sm text-dim">
+        <div className="mt-3 flex flex-1 min-h-[280px] items-center justify-center rounded-md border border-edge bg-canvas text-sm text-dim">
           No route data
         </div>
       ) : (
-        <div className="relative mt-3 h-[280px] overflow-hidden rounded-md border border-edge">
+        <div className="relative mt-3 flex-1 min-h-[280px] overflow-hidden rounded-md border border-edge">
           {mapLib ? (
             <RoutingMap hops={hops} rl={mapLib.rl} L={mapLib.L} />
           ) : (

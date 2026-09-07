@@ -35,5 +35,9 @@
       { "from": "domain1", "to": "ip1", "reason": "hosted on sending IP" }
     ]
   },
-  "masked_view_available": true
+  "masked_view_available": true,
+  "nlp_findings": [
+    { "phrase": "your Microsoft 365 password expires today", "label": "urgency", "confidence": 0.95 },
+    { "phrase": "keep your current password by verifying below", "label": "credential_request", "confidence": 0.91 }
+  ]
 }

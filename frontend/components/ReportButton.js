@@ -144,6 +144,16 @@ Domain Age         : ${data?.iocs?.domain_age_days ? `${data.iocs.domain_age_day
 Typosquat Target   : ${data?.iocs?.typosquat_target || "None"}
 Observed Artifacts : ${artifacts}
 
+[NLP & LANGUAGE FINDINGS]
+${Array.isArray(sanitized.nlp_findings) && sanitized.nlp_findings.length > 0
+  ? sanitized.nlp_findings
+      .map(
+        (f) =>
+          `  - [${(f.label || "FLAG").toUpperCase()}] "${f.phrase}" (Confidence: ${Math.round((f.confidence ?? 0) * 100)}%)`
+      )
+      .join("\n")
+  : "  No adversarial NLP patterns identified"}
+
 ================================================================================
                            END OF FORENSIC DOSSIER
 ================================================================================`;

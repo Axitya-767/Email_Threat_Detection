@@ -35,5 +35,9 @@
       { "from": "domain1", "to": "email1", "reason": "compromised mailbox" }
     ]
   },
-  "masked_view_available": true
+  "masked_view_available": true,
+  "nlp_findings": [
+    { "phrase": "please update payment beneficiary immediately", "label": "financial_diversion", "confidence": 0.94 },
+    { "phrase": "process the attached wire transfer before end of day", "label": "urgency", "confidence": 0.89 }
+  ]
 }
