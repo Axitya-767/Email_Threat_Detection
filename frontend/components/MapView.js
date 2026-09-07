@@ -106,13 +106,18 @@ function RoutingMap({ hops, rl, L }) {
           icon={createHopIcon(L, hop, index === hops.length - 1)}
         >
           <Popup>
-            <div>
+            <div className="text-xs">
               <div>
                 <strong>Hop {hop.hop_order}</strong>
               </div>
-              <div>{hop.ip}</div>
+              <div className="font-mono">{hop.ip}</div>
               <div>{hop.place}</div>
-              <div>{hop.note}</div>
+              {hop.note && <div className="text-dim">{hop.note}</div>}
+              {hop.relayed_at && (
+                <div className="mt-1 font-mono text-[10px] text-accent">
+                  {hop.relayed_at}
+                </div>
+              )}
             </div>
           </Popup>
         </Marker>

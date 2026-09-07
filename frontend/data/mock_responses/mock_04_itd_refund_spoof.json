@@ -13,9 +13,9 @@
   },
   "authentication": { "spf": "fail", "dkim": "fail", "dmarc": "fail" },
   "trace": [
-    { "hop_order": 1, "ip": "185.220.101.5", "lat": 52.37, "lng": 4.9, "place": "Amsterdam, Netherlands", "note": "Datacenter flagged" },
-    { "hop_order": 2, "ip": "51.89.42.17", "lat": 51.51, "lng": -0.13, "place": "London, United Kingdom", "note": "Overseas relay" },
-    { "hop_order": 3, "ip": "49.36.80.10", "lat": 28.61, "lng": 77.21, "place": "New Delhi, India", "note": "Destination mail server" }
+    { "hop_order": 1, "ip": "185.220.101.5", "lat": 52.37, "lng": 4.9, "place": "Amsterdam, Netherlands", "note": "Datacenter flagged", "relayed_at": "2026-09-06T08:12:05.000Z" },
+    { "hop_order": 2, "ip": "51.89.42.17", "lat": 51.51, "lng": -0.13, "place": "London, United Kingdom", "note": "Overseas relay", "relayed_at": "2026-09-06T08:12:17.000Z" },
+    { "hop_order": 3, "ip": "49.36.80.10", "lat": 28.61, "lng": 77.21, "place": "New Delhi, India", "note": "Destination mail server", "relayed_at": "2026-09-06T08:12:45.000Z" }
   ],
   "iocs": {
     "domain_age_days": 9,

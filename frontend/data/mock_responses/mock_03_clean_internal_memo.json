@@ -13,9 +13,9 @@
   },
   "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
   "trace": [
-    { "hop_order": 1, "ip": "209.85.220.41", "lat": 37.42, "lng": -122.08, "place": "Mountain View, United States", "note": "Google Workspace outbound" },
-    { "hop_order": 2, "ip": "74.125.24.26", "lat": 1.35, "lng": 103.82, "place": "Singapore", "note": "Google Asia hop" },
-    { "hop_order": 3, "ip": "202.83.21.45", "lat": 17.39, "lng": 78.49, "place": "Hyderabad, India", "note": "Destination mail server" }
+    { "hop_order": 1, "ip": "209.85.220.41", "lat": 37.42, "lng": -122.08, "place": "Mountain View, United States", "note": "Google Workspace outbound", "relayed_at": "2026-09-06T05:18:00.000Z" },
+    { "hop_order": 2, "ip": "74.125.24.26", "lat": 1.35, "lng": 103.82, "place": "Singapore", "note": "Google Asia hop", "relayed_at": "2026-09-06T05:18:14.000Z" },
+    { "hop_order": 3, "ip": "202.83.21.45", "lat": 17.39, "lng": 78.49, "place": "Hyderabad, India", "note": "Destination mail server", "relayed_at": "2026-09-06T05:18:25.000Z" }
   ],
   "iocs": {
     "domain_age_days": 4382,

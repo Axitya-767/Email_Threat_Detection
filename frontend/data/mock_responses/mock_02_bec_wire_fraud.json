@@ -13,9 +13,9 @@
   },
   "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
   "trace": [
-    { "hop_order": 1, "ip": "197.210.53.88", "lat": 6.52, "lng": 3.38, "place": "Lagos, Nigeria", "note": "Session origin before relay" },
-    { "hop_order": 2, "ip": "40.107.8.52", "lat": 1.35, "lng": 103.82, "place": "Singapore", "note": "Compromised Microsoft 365 tenant relay" },
-    { "hop_order": 3, "ip": "49.207.50.12", "lat": 12.97, "lng": 77.59, "place": "Bengaluru, India", "note": "Destination mail server" }
+    { "hop_order": 1, "ip": "197.210.53.88", "lat": 6.52, "lng": 3.38, "place": "Lagos, Nigeria", "note": "Session origin before relay", "relayed_at": "2026-09-06T06:45:10.000Z" },
+    { "hop_order": 2, "ip": "40.107.8.52", "lat": 1.35, "lng": 103.82, "place": "Singapore", "note": "Compromised Microsoft 365 tenant relay", "relayed_at": "2026-09-06T06:45:32.000Z" },
+    { "hop_order": 3, "ip": "49.207.50.12", "lat": 12.97, "lng": 77.59, "place": "Bengaluru, India", "note": "Destination mail server", "relayed_at": "2026-09-06T06:45:49.000Z" }
   ],
   "iocs": {
     "domain_age_days": 4018,

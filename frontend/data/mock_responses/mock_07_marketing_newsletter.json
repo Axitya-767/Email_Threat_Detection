@@ -13,9 +13,9 @@
   },
   "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
   "trace": [
-    { "hop_order": 1, "ip": "198.2.185.44", "lat": 33.75, "lng": -84.39, "place": "Atlanta, United States", "note": "Mailchimp commercial ASN" },
-    { "hop_order": 2, "ip": "198.2.177.12", "lat": 41.88, "lng": -87.63, "place": "Chicago, United States", "note": "Bulk ESP relay" },
-    { "hop_order": 3, "ip": "202.83.21.45", "lat": 17.39, "lng": 78.49, "place": "Hyderabad, India", "note": "Destination mail server" }
+    { "hop_order": 1, "ip": "198.2.185.44", "lat": 33.75, "lng": -84.39, "place": "Atlanta, United States", "note": "Mailchimp commercial ASN", "relayed_at": "2026-09-06T11:05:00.000Z" },
+    { "hop_order": 2, "ip": "198.2.177.12", "lat": 41.88, "lng": -87.63, "place": "Chicago, United States", "note": "Bulk ESP relay", "relayed_at": "2026-09-06T11:05:08.000Z" },
+    { "hop_order": 3, "ip": "202.83.21.45", "lat": 17.39, "lng": 78.49, "place": "Hyderabad, India", "note": "Destination mail server", "relayed_at": "2026-09-06T11:05:35.000Z" }
   ],
   "iocs": {
     "domain_age_days": 4382,

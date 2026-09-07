@@ -13,9 +13,9 @@
   },
   "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
   "trace": [
-    { "hop_order": 1, "ip": "14.162.88.203", "lat": 21.03, "lng": 105.85, "place": "Hanoi, Vietnam", "note": "Impossible-travel login origin" },
-    { "hop_order": 2, "ip": "103.27.9.18", "lat": 28.55, "lng": 77.19, "place": "New Delhi, India", "note": "University authenticated relay" },
-    { "hop_order": 3, "ip": "103.27.9.20", "lat": 28.55, "lng": 77.19, "place": "New Delhi, India", "note": "Destination mail server" }
+    { "hop_order": 1, "ip": "14.162.88.203", "lat": 21.03, "lng": 105.85, "place": "Hanoi, Vietnam", "note": "Impossible-travel login origin", "relayed_at": "2026-09-06T03:22:11.000Z" },
+    { "hop_order": 2, "ip": "103.27.9.18", "lat": 28.55, "lng": 77.19, "place": "New Delhi, India", "note": "University authenticated relay", "relayed_at": "2026-09-06T03:22:36.000Z" },
+    { "hop_order": 3, "ip": "103.27.9.20", "lat": 28.55, "lng": 77.19, "place": "New Delhi, India", "note": "Destination mail server", "relayed_at": "2026-09-06T03:22:44.000Z" }
   ],
   "iocs": {
     "domain_age_days": 4,
