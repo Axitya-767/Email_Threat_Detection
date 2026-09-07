@@ -13,6 +13,58 @@ function isFlaggedNote(note) {
   return typeof note === "string" && /flagged/i.test(note);
 }
 
+function haversineDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function getTimeDeltaSeconds(t1Str, t2Str) {
+  if (!t1Str || !t2Str) return null;
+  const t1 = new Date(t1Str).getTime();
+  const t2 = new Date(t2Str).getTime();
+  if (isNaN(t1) || isNaN(t2)) return null;
+  return Math.abs((t2 - t1) / 1000);
+}
+
+function getCityName(place, hopOrder) {
+  if (!place) return `Hop ${hopOrder}`;
+  const parts = place.split(",");
+  return parts[0]?.trim() || place;
+}
+
+function getHopPairAnomalies(hops) {
+  const anomalies = [];
+  for (let i = 0; i < hops.length - 1; i++) {
+    const from = hops[i];
+    const to = hops[i + 1];
+    const distKm = haversineDistanceKm(from.lat, from.lng, to.lat, to.lng);
+    const deltaSec = getTimeDeltaSeconds(from.relayed_at, to.relayed_at);
+
+    if (distKm > 3000 && deltaSec !== null && deltaSec < 5) {
+      anomalies.push({
+        pairKey: `${from.hop_order}-${to.hop_order}`,
+        fromHopOrder: from.hop_order,
+        toHopOrder: to.hop_order,
+        fromCity: getCityName(from.place, from.hop_order),
+        toCity: getCityName(to.place, to.hop_order),
+        deltaSec,
+        distKm: Math.round(distKm),
+      });
+    }
+  }
+  return anomalies;
+}
+
 function hopColor(hop, isLast) {
   if (isFlaggedNote(hop?.note)) return RISK.red;
   if (isLast) return RISK.green;
@@ -66,6 +118,12 @@ function RoutingMap({ hops, rl, L }) {
   const center = [hops[0].lat, hops[0].lng];
   const scenarioKey = hops.map((hop) => `${hop.hop_order}:${hop.ip}`).join("|");
 
+  const pairAnomalies = useMemo(() => getHopPairAnomalies(hops), [hops]);
+  const anomalousPairKeys = useMemo(
+    () => new Set(pairAnomalies.map((a) => a.pairKey)),
+    [pairAnomalies]
+  );
+
   return (
     <MapContainer
       key={scenarioKey}
@@ -82,46 +140,66 @@ function RoutingMap({ hops, rl, L }) {
       <FitTraceBounds hops={hops} useMap={useMap} />
       {hops.slice(0, -1).map((from, index) => {
         const to = hops[index + 1];
+        const pairKey = `${from.hop_order}-${to.hop_order}`;
+        const isTimingAnomaly = anomalousPairKeys.has(pairKey);
         const flagged = isFlaggedNote(from.note) || isFlaggedNote(to.note);
+
         return (
           <Polyline
-            key={`${from.hop_order}-${to.hop_order}`}
+            key={pairKey}
             positions={[
               [from.lat, from.lng],
               [to.lat, to.lng],
             ]}
             pathOptions={{
-              color: flagged ? RISK.red : RISK.amber,
-              weight: flagged ? 5 : 3,
+              color: isTimingAnomaly ? RISK.red : flagged ? RISK.red : RISK.amber,
+              weight: isTimingAnomaly ? 5 : flagged ? 5 : 3,
               opacity: 0.95,
-              dashArray: flagged ? "8 6" : undefined,
+              dashArray: isTimingAnomaly ? "6 5" : flagged ? "8 6" : undefined,
+              className: isTimingAnomaly ? "anomalous-polyline-pulse" : undefined,
             }}
           />
         );
       })}
-      {hops.map((hop, index) => (
-        <Marker
-          key={`${hop.hop_order}-${hop.ip}`}
-          position={[hop.lat, hop.lng]}
-          icon={createHopIcon(L, hop, index === hops.length - 1)}
-        >
-          <Popup>
-            <div className="text-xs">
-              <div>
-                <strong>Hop {hop.hop_order}</strong>
-              </div>
-              <div className="font-mono">{hop.ip}</div>
-              <div>{hop.place}</div>
-              {hop.note && <div className="text-dim">{hop.note}</div>}
-              {hop.relayed_at && (
-                <div className="mt-1 font-mono text-[10px] text-accent">
-                  {hop.relayed_at}
+      {hops.map((hop, index) => {
+        const hopAnomalies = pairAnomalies.filter(
+          (a) => a.toHopOrder === hop.hop_order || a.fromHopOrder === hop.hop_order
+        );
+
+        return (
+          <Marker
+            key={`${hop.hop_order}-${hop.ip}`}
+            position={[hop.lat, hop.lng]}
+            icon={createHopIcon(L, hop, index === hops.length - 1)}
+          >
+            <Popup>
+              <div className="text-xs max-w-[240px]">
+                <div>
+                  <strong>Hop {hop.hop_order}</strong>
                 </div>
-              )}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+                <div className="font-mono">{hop.ip}</div>
+                <div>{hop.place}</div>
+                {hop.note && <div className="text-dim">{hop.note}</div>}
+                {hop.relayed_at && (
+                  <div className="mt-1 font-mono text-[10px] text-accent">
+                    {hop.relayed_at}
+                  </div>
+                )}
+                {hopAnomalies.map((anomaly, aIdx) => (
+                  <div
+                    key={aIdx}
+                    className="mt-2 rounded border border-risk-red/40 bg-risk-red/10 p-2 text-[11px] leading-relaxed text-risk-red"
+                  >
+                    <span className="font-semibold">⚠️ Timing Anomaly (Inferred):</span>{" "}
+                    Only {anomaly.deltaSec}s between {anomaly.fromCity} and{" "}
+                    {anomaly.toCity} — implausible for real relay processing at this distance, suggesting fabricated or spoofed header entries.
+                  </div>
+                ))}
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
     </MapContainer>
   );
 }
@@ -180,16 +258,34 @@ export default function MapView({ data, masked }) {
           width: 100%;
           font-family: inherit;
         }
+        @keyframes timingAnomalyPulse {
+          0%, 100% {
+            stroke-opacity: 0.95;
+            stroke-width: 5px;
+          }
+          50% {
+            stroke-opacity: 0.4;
+            stroke-width: 7px;
+          }
+        }
+        .anomalous-polyline-pulse {
+          animation: timingAnomalyPulse 1.5s ease-in-out infinite;
+        }
       `}</style>
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-sm text-ink">Routing map</span>
-        <div className="flex items-center gap-3 text-xs text-dim">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <span className="text-sm font-medium text-ink">Routing map</span>
+          <p className="mt-0.5 text-[11px] text-dim">
+            Timing anomalies are inferred indicators, not definitive proof of spoofing.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-dim">
           <span className="inline-flex items-center gap-1">
             <span
-              className="inline-block h-2 w-2 rounded-full bg-risk-red"
+              className="inline-block h-2 w-2 rounded-full bg-risk-red animate-pulse"
               aria-hidden
             />
-            Flagged
+            Timing Anomaly
           </span>
           <span className="inline-flex items-center gap-1">
             <span
