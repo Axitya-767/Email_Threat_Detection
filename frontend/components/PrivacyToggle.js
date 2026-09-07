@@ -89,7 +89,7 @@ export default function PrivacyToggle({ data, masked, setMasked }) {
       <div className="inline-flex items-center gap-3 rounded-lg border border-edge bg-surface px-3 py-2">
         <div className="flex items-center gap-2">
           <svg
-            className={`h-4 w-4 ${masked ? "text-risk-green" : "text-risk-amber"}`}
+            className={`h-4 w-4 ${masked ? "text-risk-green" : "text-risk-red"}`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -99,16 +99,16 @@ export default function PrivacyToggle({ data, masked, setMasked }) {
             aria-hidden="true"
           >
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            {masked && <path d="m9 12 2 2 4-4" />}
+            {masked ? <path d="m9 12 2 2 4-4" /> : <path d="m10 10 4 4m0-4-4 4" />}
           </svg>
-          <span className="text-xs font-medium text-ink">PII Shield</span>
+          <span className="text-xs font-semibold text-ink">PII Shield</span>
         </div>
 
         <span
-          className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide border ${
+          className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider border ${
             masked
-              ? "border-risk-green/30 bg-risk-green/10 text-risk-green"
-              : "border-risk-amber/30 bg-risk-amber/10 text-risk-amber"
+              ? "border-risk-green/30 bg-risk-green/15 text-risk-green"
+              : "border-risk-red/50 bg-risk-red/25 text-risk-red animate-pulse"
           }`}
         >
           {masked ? "Protected" : "Exposed"}
@@ -117,17 +117,21 @@ export default function PrivacyToggle({ data, masked, setMasked }) {
         <button
           type="button"
           role="switch"
-          aria-checked={masked}
+          aria-checked={!masked}
           aria-label="Toggle PII Masking"
           disabled={!canToggle}
           onClick={handleToggle}
-          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border border-edge transition-colors focus:outline-none focus:ring-1 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50 ${
-            masked ? "bg-accent" : "bg-canvas"
+          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border transition-all focus:outline-hidden focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50 ${
+            !masked
+              ? "border-risk-red bg-risk-red shadow-xs shadow-red-600/50"
+              : "border-edge bg-canvas/80"
           }`}
         >
           <span
-            className={`inline-block h-3.5 w-3.5 rounded-full bg-surface shadow transition-transform ${
-              masked ? "translate-x-[18px]" : "translate-x-[3px]"
+            className={`inline-block h-3.5 w-3.5 rounded-full shadow-xs transition-transform ${
+              !masked
+                ? "translate-x-[18px] bg-white"
+                : "translate-x-[3px] bg-dim/60"
             }`}
           />
         </button>

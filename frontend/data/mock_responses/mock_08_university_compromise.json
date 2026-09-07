@@ -6,10 +6,10 @@
   "risk_score": 74,
   "classification": "compromised_account",
   "quadrants": {
-    "header_routing": 12,
-    "auth_failure": 0,
-    "nlp_language": 35,
-    "reputation": 27
+    "header_routing": 18,
+    "auth_failure": 12,
+    "nlp_language": 30,
+    "reputation": 14
   },
   "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
   "trace": [

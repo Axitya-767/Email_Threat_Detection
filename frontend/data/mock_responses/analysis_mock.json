@@ -1,0 +1,43 @@
+{
+  "filename": "SBI_Urgent_KYC_Update.msg",
+  "file_size_kb": 2150,
+  "sha256": "4b7e2c91a8d0f356e1c4b9a7d2f6083c5e9a1b4d7c2f8e0a3b6d9c1e4f7a2b5d",
+  "sender": { "name": "Ramesh Sharma", "email": "ramesh@sbi-support-desk.com" },
+  "risk_score": 91,
+  "classification": "phishing",
+  "quadrants": {
+    "header_routing": 18,
+    "auth_failure": 30,
+    "nlp_language": 30,
+    "reputation": 13
+  },
+  "authentication": { "spf": "fail", "dkim": "fail", "dmarc": "fail" },
+  "trace": [
+    { "hop_order": 1, "ip": "185.220.101.5", "lat": 52.37, "lng": 4.9, "place": "Amsterdam, Netherlands", "note": "Datacenter flagged", "relayed_at": "2026-09-06T09:02:10.000Z" },
+    { "hop_order": 2, "ip": "94.130.88.21", "lat": 50.11, "lng": 8.68, "place": "Frankfurt, Germany", "note": "Intermediate relay", "relayed_at": "2026-09-06T09:02:28.000Z" },
+    { "hop_order": 3, "ip": "103.21.244.0", "lat": 19.07, "lng": 72.87, "place": "Mumbai, India", "note": "Destination mail server", "relayed_at": "2026-09-06T09:02:29.500Z" }
+  ],
+  "iocs": {
+    "domain_age_days": 11,
+    "typosquat_target": "onlinesbi.sbi",
+    "artifacts": ["IFSC:HDFC0001234"]
+  },
+  "relationships": {
+    "nodes": [
+      { "id": "ip1", "type": "ip", "label": "185.220.101.5" },
+      { "id": "email1", "type": "email", "label": "Email #104 (SBI spoof)" },
+      { "id": "email2", "type": "email", "label": "Email #108 (Tax refund spoof)" },
+      { "id": "domain1", "type": "domain", "label": "sbi-support-desk.com" }
+    ],
+    "edges": [
+      { "from": "email1", "to": "ip1", "reason": "same sending IP" },
+      { "from": "email2", "to": "ip1", "reason": "same sending IP" },
+      { "from": "domain1", "to": "ip1", "reason": "same registrar" }
+    ]
+  },
+  "masked_view_available": true,
+  "nlp_findings": [
+    { "phrase": "your account will be suspended within 24 hours", "label": "urgency", "confidence": 0.91 },
+    { "phrase": "verify your KYC details immediately", "label": "credential_request", "confidence": 0.87 }
+  ]
+}

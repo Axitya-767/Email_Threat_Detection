@@ -136,7 +136,7 @@ export default function AttributionVerdict({ data, masked: _masked }) {
     <section className="group relative flex min-w-0 flex-col rounded-lg border border-edge bg-surface p-4 transition-all duration-200 hover:border-accent/40 hover:bg-surface/90">
       <div className="mb-2 flex items-center justify-between gap-2">
         <span className="text-[11px] font-medium uppercase tracking-wider text-dim">
-          Attribution Verdict
+          Attribution verdict
         </span>
         <span className="shrink-0 font-mono text-[10px] text-dim/70">Origin Telemetry</span>
       </div>

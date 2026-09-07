@@ -6,9 +6,9 @@
   "risk_score": 91,
   "classification": "phishing",
   "quadrants": {
-    "header_routing": 24,
-    "auth_failure": 28,
-    "nlp_language": 26,
+    "header_routing": 18,
+    "auth_failure": 30,
+    "nlp_language": 30,
     "reputation": 13
   },
   "authentication": { "spf": "fail", "dkim": "fail", "dmarc": "fail" },

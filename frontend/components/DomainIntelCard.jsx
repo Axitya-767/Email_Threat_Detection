@@ -43,7 +43,7 @@ export default function DomainIntelCard({ data, masked: _masked }) {
       <header className="mb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-sm font-medium text-ink">Domain Intelligence</h2>
+            <h2 className="text-sm font-medium text-ink">Domain intelligence</h2>
             <p className="mt-0.5 text-xs text-dim">Registration & lookalike analysis</p>
           </div>
           <span

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, ShieldAlert, ArrowRight, FileText, Filter } from "lucide-react";
+import { Search, X, ShieldAlert, ChevronRight, FileText, Filter } from "lucide-react";
 import {
   CASES_LIST,
   CATEGORIES,
@@ -68,14 +68,14 @@ export default function CasesPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-md border border-edge bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dim">
-                Forensics Archive
+                Forensics archive
               </span>
               <span className="text-xs text-dim">
-                {CASES_LIST.length} Ingested Case Files
+                {CASES_LIST.length} ingested case files
               </span>
             </div>
             <h1 className="mt-1 text-xl font-bold text-ink tracking-tight">
-              Case Directory & Evidence Management
+              Case directory & evidence management
             </h1>
             <p className="text-xs text-dim">
               Searchable forensic database for suspect emails, threat telemetry, and identity forensics.
@@ -151,12 +151,12 @@ export default function CasesPage() {
             <thead>
               <tr className="border-b border-edge bg-canvas/60 text-[11px] font-semibold uppercase tracking-wider text-dim">
                 <th className="px-4 py-3">Case ID</th>
-                <th className="px-4 py-3">Case Title & File</th>
-                <th className="px-4 py-3">Sender Identity</th>
+                <th className="px-4 py-3">Case title & file</th>
+                <th className="px-4 py-3">Sender identity</th>
                 <th className="px-4 py-3">Classification</th>
-                <th className="px-4 py-3">Risk Score</th>
-                <th className="px-4 py-3">Date Ingested</th>
-                <th className="px-4 py-3 text-right">Investigation</th>
+                <th className="px-4 py-3">Risk score</th>
+                <th className="px-4 py-3">Date ingested</th>
+                <th className="px-4 py-3 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-edge/60">
@@ -253,12 +253,9 @@ export default function CasesPage() {
                         {item.date}
                       </td>
 
-                      {/* Action */}
+                      {/* Trailing chevron indicating clickable row */}
                       <td className="whitespace-nowrap px-4 py-3.5 text-right">
-                        <span className="inline-flex items-center gap-1 rounded-md border border-edge bg-canvas px-2.5 py-1 text-[11px] font-medium text-dim transition-all group-hover:border-accent group-hover:text-accent">
-                          Investigate
-                          <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                        </span>
+                        <ChevronRight className="h-4 w-4 text-dim/50 transition-transform group-hover:translate-x-1 group-hover:text-accent ml-auto" />
                       </td>
                     </tr>
                   );

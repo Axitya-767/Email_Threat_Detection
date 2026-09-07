@@ -1,14 +1,14 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "../components/Sidebar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -21,9 +21,9 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full bg-canvas text-ink antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full bg-canvas text-ink antialiased font-sans`}
     >
-      <body className="min-h-full bg-canvas text-ink">
+      <body className="min-h-full bg-canvas text-ink font-sans">
         <div className="flex min-h-full">
           <Sidebar />
           <main className="min-w-0 flex-1 bg-canvas">{children}</main>

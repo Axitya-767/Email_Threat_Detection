@@ -7,6 +7,7 @@ const RISK = {
   red: "#dc2626",
   amber: "#d97706",
   green: "#16a34a",
+  neutral: "#475569",
 };
 
 function isFlaggedNote(note) {
@@ -65,10 +66,12 @@ function getHopPairAnomalies(hops) {
   return anomalies;
 }
 
+// Markers distinguished by sequence order (numbers) and neutral slate base;
+// destination uses green, anomalies use amber (red reserved strictly for case verdict)
 function hopColor(hop, isLast) {
-  if (isFlaggedNote(hop?.note)) return RISK.red;
   if (isLast) return RISK.green;
-  return RISK.amber;
+  if (isFlaggedNote(hop?.note)) return RISK.amber;
+  return RISK.neutral;
 }
 
 function createHopIcon(L, hop, isLast) {
@@ -78,44 +81,58 @@ function createHopIcon(L, hop, isLast) {
     iconSize: [28, 28],
     iconAnchor: [14, 14],
     popupAnchor: [0, -14],
-    html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9999px;background:${color};color:#e8eaed;border:2px solid #e8eaed;font-size:12px;font-weight:600;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.45)">${hop.hop_order}</div>`,
+    html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9999px;background:${color};color:#ffffff;border:2px solid #e8eaed;font-size:12px;font-weight:700;font-family:monospace;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,0.6)">${hop.hop_order}</div>`,
   });
 }
 
-function FitTraceBounds({ hops, useMap }) {
+function FitTraceBounds({ hops, useMap, L }) {
   const map = useMap();
 
   useEffect(() => {
+    if (!map || !hops || hops.length === 0) return;
     const positions = hops.map((hop) => [hop.lat, hop.lng]);
 
     const apply = () => {
-      map.invalidateSize();
-      if (positions.length === 1) {
-        map.setView(positions[0], 5);
-        return;
-      }
-      if (positions.length > 1) {
-        map.fitBounds(positions, { padding: [32, 32], maxZoom: 7 });
+      try {
+        map.invalidateSize();
+        if (positions.length > 1) {
+          const latLngBounds = L ? L.latLngBounds(positions) : positions;
+          map.fitBounds(latLngBounds, { padding: [50, 50], maxZoom: 5 });
+        } else if (positions.length === 1) {
+          map.setView(positions[0], 5);
+        }
+      } catch (err) {
+        console.warn("Leaflet fitBounds error:", err);
       }
     };
 
     apply();
-    const timers = [50, 200, 500].map((ms) => setTimeout(apply, ms));
-    const observer = new ResizeObserver(apply);
-    observer.observe(map.getContainer());
+    const t1 = setTimeout(apply, 60);
+    const t2 = setTimeout(apply, 200);
+    const t3 = setTimeout(apply, 500);
+
+    let ro;
+    const container = map.getContainer();
+    if (typeof ResizeObserver !== "undefined" && container) {
+      ro = new ResizeObserver(() => {
+        apply();
+      });
+      ro.observe(container);
+    }
 
     return () => {
-      timers.forEach(clearTimeout);
-      observer.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      if (ro) ro.disconnect();
     };
-  }, [map, hops]);
+  }, [map, hops, L]);
 
   return null;
 }
 
 function RoutingMap({ hops, rl, L }) {
   const { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } = rl;
-  const center = [hops[0].lat, hops[0].lng];
   const scenarioKey = hops.map((hop) => `${hop.hop_order}:${hop.ip}`).join("|");
 
   const pairAnomalies = useMemo(() => getHopPairAnomalies(hops), [hops]);
@@ -124,25 +141,30 @@ function RoutingMap({ hops, rl, L }) {
     [pairAnomalies]
   );
 
+  const initialCenter = hops.length > 0 ? [hops[0].lat, hops[0].lng] : [30, 40];
+
   return (
     <MapContainer
       key={scenarioKey}
-      center={center}
-      zoom={4}
+      center={initialCenter}
+      zoom={3}
       scrollWheelZoom
       className="h-full w-full"
-      style={{ height: "100%", width: "100%", background: "#1b1e24" }}
+      style={{ height: "100%", width: "100%", background: "#1b1e24", position: "relative" }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <FitTraceBounds hops={hops} useMap={useMap} />
+      <FitTraceBounds hops={hops} useMap={useMap} L={L} />
       {hops.slice(0, -1).map((from, index) => {
         const to = hops[index + 1];
         const pairKey = `${from.hop_order}-${to.hop_order}`;
         const isTimingAnomaly = anomalousPairKeys.has(pairKey);
         const flagged = isFlaggedNote(from.note) || isFlaggedNote(to.note);
+
+        // Color system: Timing anomaly uses amber (not red)
+        const lineColor = isTimingAnomaly || flagged ? RISK.amber : "#64748b";
 
         return (
           <Polyline
@@ -152,10 +174,10 @@ function RoutingMap({ hops, rl, L }) {
               [to.lat, to.lng],
             ]}
             pathOptions={{
-              color: isTimingAnomaly ? RISK.red : flagged ? RISK.red : RISK.amber,
-              weight: isTimingAnomaly ? 5 : flagged ? 5 : 3,
+              color: lineColor,
+              weight: isTimingAnomaly ? 4.5 : 3,
               opacity: 0.95,
-              dashArray: isTimingAnomaly ? "6 5" : flagged ? "8 6" : undefined,
+              dashArray: isTimingAnomaly ? "6 5" : undefined,
               className: isTimingAnomaly ? "anomalous-polyline-pulse" : undefined,
             }}
           />
@@ -188,11 +210,11 @@ function RoutingMap({ hops, rl, L }) {
                 {hopAnomalies.map((anomaly, aIdx) => (
                   <div
                     key={aIdx}
-                    className="mt-2 rounded border border-risk-red/40 bg-risk-red/10 p-2 text-[11px] leading-relaxed text-risk-red"
+                    className="mt-2 rounded border border-risk-amber/40 bg-risk-amber/10 p-2 text-[11px] leading-relaxed text-risk-amber"
                   >
-                    <span className="font-semibold">⚠️ Timing Anomaly (Inferred):</span>{" "}
+                    <span className="font-semibold">⚠️ Timing anomaly (inferred):</span>{" "}
                     Only {anomaly.deltaSec}s between {anomaly.fromCity} and{" "}
-                    {anomaly.toCity} — implausible for real relay processing at this distance, suggesting fabricated or spoofed header entries.
+                    {anomaly.toCity} — implausible for real relay processing at this distance, suggesting potential header manipulation.
                   </div>
                 ))}
               </div>
@@ -225,19 +247,9 @@ export default function MapView({ data, masked }) {
     let cancelled = false;
 
     Promise.all([import("react-leaflet"), import("leaflet")]).then(
-      ([rl, leafletMod]) => {
+      ([{ MapContainer, TileLayer, Marker, Popup, Polyline, useMap }, L]) => {
         if (cancelled) return;
-        const L = leafletMod.default;
-        delete L.Icon.Default.prototype._getIconUrl;
-        L.Icon.Default.mergeOptions({
-          iconRetinaUrl:
-            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-          iconUrl:
-            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-          shadowUrl:
-            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-        });
-        setMapLib({ rl, L });
+        setMapLib({ rl: { MapContainer, TileLayer, Marker, Popup, Polyline, useMap }, L });
       },
     );
 
@@ -247,7 +259,7 @@ export default function MapView({ data, masked }) {
   }, []);
 
   return (
-    <div className="flex h-full min-h-[360px] flex-col rounded-lg border border-edge bg-surface p-4">
+    <div className="relative isolate z-0 flex flex-col h-[520px] min-h-[520px] rounded-xl border border-edge bg-surface p-6 shadow-sm">
       <style>{`
         .hop-marker-icon {
           background: none;
@@ -257,64 +269,72 @@ export default function MapView({ data, masked }) {
           height: 100%;
           width: 100%;
           font-family: inherit;
+          position: relative !important;
+          z-index: 0 !important;
         }
         @keyframes timingAnomalyPulse {
           0%, 100% {
             stroke-opacity: 0.95;
-            stroke-width: 5px;
+            stroke-width: 4.5px;
           }
           50% {
             stroke-opacity: 0.4;
-            stroke-width: 7px;
+            stroke-width: 6.5px;
           }
         }
         .anomalous-polyline-pulse {
           animation: timingAnomalyPulse 1.5s ease-in-out infinite;
         }
       `}</style>
-      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
+      
+      {/* Section Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between pb-3 border-b border-edge/60 shrink-0">
         <div>
-          <span className="text-sm font-medium text-ink">Routing map</span>
-          <p className="mt-0.5 text-[11px] text-dim">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-dim">
+            Network telemetry
+          </span>
+          <h2 className="text-lg font-semibold text-ink">Routing map</h2>
+          <p className="mt-0.5 text-xs text-dim">
             Timing anomalies are inferred indicators, not definitive proof of spoofing.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-dim">
-          <span className="inline-flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-3.5 text-xs text-dim self-end sm:self-auto">
+          <span className="inline-flex items-center gap-1.5">
             <span
-              className="inline-block h-2 w-2 rounded-full bg-risk-red animate-pulse"
+              className="inline-block h-2 w-2 rounded-full bg-risk-amber animate-pulse"
               aria-hidden
             />
-            Timing Anomaly
+            <span className="text-ink">Timing anomaly (amber)</span>
           </span>
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-center gap-1.5">
             <span
-              className="inline-block h-2 w-2 rounded-full bg-risk-amber"
+              className="inline-block h-2 w-2 rounded-full bg-slate-500"
               aria-hidden
             />
-            Route
+            <span>Relay route</span>
           </span>
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-center gap-1.5">
             <span
               className="inline-block h-2 w-2 rounded-full bg-risk-green"
               aria-hidden
             />
-            Destination
+            <span>Destination</span>
           </span>
         </div>
       </div>
 
+      {/* Map Viewport - takes remaining container height */}
       {hops.length === 0 ? (
-        <div className="mt-3 flex flex-1 min-h-[280px] items-center justify-center rounded-md border border-edge bg-canvas text-sm text-dim">
-          No route data
+        <div className="mt-4 flex flex-1 items-center justify-center rounded-lg border border-edge bg-canvas text-sm text-dim">
+          No route data available for this case.
         </div>
       ) : (
-        <div className="relative mt-3 flex-1 min-h-[280px] overflow-hidden rounded-md border border-edge">
+        <div className="relative z-0 mt-4 flex-1 h-[400px] min-h-[380px] w-full overflow-hidden rounded-lg border border-edge">
           {mapLib ? (
             <RoutingMap hops={hops} rl={mapLib.rl} L={mapLib.L} />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-dim">
-              Loading map…
+            <div className="flex h-full items-center justify-center text-xs text-dim">
+              Loading Leaflet geospatial engine…
             </div>
           )}
         </div>

@@ -131,10 +131,10 @@ DKIM               : ${(data?.authentication?.dkim || "N/A").toUpperCase()}
 DMARC              : ${(data?.authentication?.dmarc || "N/A").toUpperCase()}
 
 [RISK QUADRANTS]
-Header & Routing   : ${data?.quadrants?.header_routing ?? "N/A"} / 30
+Header & Routing   : ${data?.quadrants?.header_routing ?? "N/A"} / 25
 Auth Failure       : ${data?.quadrants?.auth_failure ?? "N/A"} / 30
 NLP & Language     : ${data?.quadrants?.nlp_language ?? "N/A"} / 30
-Reputation Score   : ${data?.quadrants?.reputation ?? "N/A"} / 30
+Reputation Score   : ${data?.quadrants?.reputation ?? "N/A"} / 15
 
 [NETWORK TRACE HOPS]
 ${hops}

@@ -6,27 +6,22 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "ui-monospace", "monospace"],
+      },
       colors: {
         canvas: "#1b1e24",
         surface: "#262b33",
         edge: "#3d444e",
         ink: "#e8eaed",
         dim: "#8f96a1",
-        accent: "#6ea3d8",
+        accent: "#3b6998", // deep slate-blue for premium forensic tone
         risk: {
-          red: "#dc2626",
-          amber: "#d97706",
-          green: "#16a34a",
+          red: "#b91c1c",   // deep red-700 (critical severity)
+          amber: "#d97706", // medium severity
+          green: "#16a34a", // clean severity
         },
-      },
-      spacing: {
-        xs: "0.25rem",
-        sm: "0.5rem",
-        md: "1rem",
-        lg: "1.5rem",
-        xl: "2rem",
-        "2xl": "3rem",
-        "3xl": "4rem",
       },
     },
   },

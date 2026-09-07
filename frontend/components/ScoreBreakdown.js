@@ -1,12 +1,14 @@
+'use client';
+
 const QUADRANT_CONFIG = [
   {
     key: "header_routing",
-    label: "Header & Routing",
-    max: 30,
+    label: "Header & routing",
+    max: 25,
     icon: (
       <svg
-        width="13"
-        height="13"
+        width="14"
+        height="14"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -25,11 +27,11 @@ const QUADRANT_CONFIG = [
   {
     key: "auth_failure",
     label: "Authentication",
-    max: 25,
+    max: 30,
     icon: (
       <svg
-        width="13"
-        height="13"
+        width="14"
+        height="14"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -44,12 +46,12 @@ const QUADRANT_CONFIG = [
   },
   {
     key: "nlp_language",
-    label: "Language & Intent",
+    label: "Language & intent",
     max: 30,
     icon: (
       <svg
-        width="13"
-        height="13"
+        width="14"
+        height="14"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -71,8 +73,8 @@ const QUADRANT_CONFIG = [
     max: 15,
     icon: (
       <svg
-        width="13"
-        height="13"
+        width="14"
+        height="14"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -110,26 +112,26 @@ function scoreExplanation(score) {
     return "No score telemetry available for analysis.";
   }
   if (score >= 80) {
-    return "Multiple high-risk indicators detected; immediate triage recommended.";
+    return "Multiple critical-risk indicators detected; immediate triage and isolation recommended.";
   }
   if (score >= 60) {
-    return "Elevated risk signals detected across header & communication channels.";
+    return "Elevated risk signals detected across authentication and communication channels.";
   }
   if (score >= 30) {
-    return "Moderate threat anomalies observed; warrants investigator review.";
+    return "Moderate threat anomalies observed; warrants manual investigator review.";
   }
-  return "Normal email communication patterns with low risk telemetry.";
+  return "Standard communication patterns with clean authentication and routing telemetry.";
 }
 
 function toneBadgeClasses(tone) {
   if (tone === "critical" || tone === "high") {
-    return "border-risk-red/40 bg-canvas text-risk-red";
+    return "border-risk-red/40 bg-risk-red/15 text-risk-red";
   }
   if (tone === "moderate") {
-    return "border-risk-amber/40 bg-canvas text-risk-amber";
+    return "border-risk-amber/40 bg-risk-amber/15 text-risk-amber";
   }
   if (tone === "low") {
-    return "border-risk-green/40 bg-canvas text-risk-green";
+    return "border-risk-green/40 bg-risk-green/15 text-risk-green";
   }
   return "border-edge bg-canvas text-dim";
 }
@@ -149,7 +151,7 @@ function toneScoreColor(tone) {
 
 function toneHexColor(tone) {
   if (tone === "critical" || tone === "high") {
-    return "#dc2626"; // risk-red
+    return "#b91c1c"; // deep red-700
   }
   if (tone === "moderate") {
     return "#d97706"; // risk-amber
@@ -157,21 +159,24 @@ function toneHexColor(tone) {
   if (tone === "low") {
     return "#16a34a"; // risk-green
   }
-  return "#6ea3d8"; // accent
+  return "#3b6998"; // deep slate-blue
 }
 
+// Exactly width = (value / max) * 100%, graded: < 50% amber, >= 50% red
 function getSignalColorInfo(val, maxVal) {
   if (typeof val !== "number" || isNaN(val) || !maxVal) {
-    return { barBg: "bg-dim", text: "text-dim", pct: 0 };
+    return { barBg: "bg-dim/40", text: "text-dim", pct: 0 };
   }
-  const pct = Math.min(100, Math.max(0, (val / maxVal) * 100));
-  if (pct > 70) {
+  const clamped = Math.max(0, Math.min(val, maxVal));
+  const pct = Number(((clamped / maxVal) * 100).toFixed(1));
+
+  if (clamped === 0) {
+    return { barBg: "bg-risk-green", text: "text-risk-green", pct: 0 };
+  }
+  if (pct >= 50) {
     return { barBg: "bg-risk-red", text: "text-risk-red", pct };
   }
-  if (pct > 40) {
-    return { barBg: "bg-risk-amber", text: "text-risk-amber", pct };
-  }
-  return { barBg: "bg-risk-green", text: "text-risk-green", pct };
+  return { barBg: "bg-risk-amber", text: "text-risk-amber", pct };
 }
 
 export default function ScoreBreakdown({ data, masked: _masked }) {
@@ -185,133 +190,146 @@ export default function ScoreBreakdown({ data, masked: _masked }) {
 
   const quadrantsData = data?.quadrants ?? {};
 
-  // SVG Circular Gauge Calculations (Radius = 32, Circumference ≈ 201.06)
-  const CIRCLE_CIRCUMFERENCE = 201.06;
+  // Hero SVG Circular Gauge (Radius = 56, Circumference ≈ 351.86)
+  const CIRCLE_CIRCUMFERENCE = 351.86;
   const scoreDashOffset = scoreValid
     ? CIRCLE_CIRCUMFERENCE -
       (CIRCLE_CIRCUMFERENCE * Math.min(100, Math.max(0, rawScore))) / 100
     : CIRCLE_CIRCUMFERENCE;
 
   return (
-    <section className="flex min-h-[220px] flex-col rounded-lg border border-edge bg-surface p-4">
-      {/* Card Header */}
-      <header className="mb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-sm font-medium text-ink">Score Breakdown</h2>
-            <p className="mt-0.5 text-xs text-dim">
-              Signals contributing to the overall risk score
+    <div className="flex flex-col rounded-xl border border-edge bg-surface p-6 shadow-sm">
+      {/* Section Sub-Header */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-edge/60 pb-4">
+        <div>
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-dim">
+            Threat signals
+          </span>
+          <h2 className="text-lg font-semibold text-ink">Score breakdown</h2>
+        </div>
+        <span
+          className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${badgeClasses}`}
+        >
+          {severity.label}
+        </span>
+      </div>
+
+      {/* Main Two-Column Layout: Hero Gauge on Left, Breakdown Bars on Right */}
+      <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
+        {/* Hero Circular Ring Gauge & Assessment (5 cols) */}
+        <div className="flex flex-col items-center text-center lg:col-span-5 lg:border-r lg:border-edge/60 lg:pr-6">
+          <div className="relative mb-4 flex shrink-0 items-center justify-center">
+            <svg width="150" height="150" viewBox="0 0 130 130" className="-rotate-90">
+              {/* Background Track */}
+              <circle
+                cx="65"
+                cy="65"
+                r="56"
+                stroke="currentColor"
+                strokeWidth="9"
+                fill="transparent"
+                className="text-canvas"
+              />
+              {/* Active Severity Ring */}
+              <circle
+                cx="65"
+                cy="65"
+                r="56"
+                stroke={scoreHex}
+                strokeWidth="9"
+                fill="transparent"
+                strokeDasharray={CIRCLE_CIRCUMFERENCE}
+                strokeDashoffset={scoreDashOffset}
+                strokeLinecap="round"
+                className="transition-all duration-700 ease-out"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={`text-4xl font-bold font-mono tracking-tight leading-none ${scoreColorClass}`}>
+                {scoreDisplay}
+              </span>
+              <span className="mt-1 font-mono text-xs font-medium text-dim">
+                / 100
+              </span>
+            </div>
+          </div>
+
+          {/* Proper width container preventing single-column word stacking */}
+          <div className="w-full min-w-[260px] max-w-[340px] px-2 text-center">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-dim block mb-1">
+              Assessment verdict
+            </span>
+            <p className="text-xs leading-relaxed text-dim break-normal whitespace-normal">
+              {scoreExplanation(rawScore)}
             </p>
           </div>
-          <span
-            className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${badgeClasses}`}
-          >
-            {severity.label}
-          </span>
         </div>
-      </header>
 
-      {/* Overall Score Section — Circular Gauge & Explanation */}
-      <div className="mb-4 flex flex-wrap items-center gap-3.5 rounded-lg border border-edge bg-canvas p-3">
-        {/* Circular Ring Gauge */}
-        <div className="relative flex shrink-0 items-center justify-center">
-          <svg width="74" height="74" viewBox="0 0 80 80" className="-rotate-90">
-            <circle
-              cx="40"
-              cy="40"
-              r="32"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="transparent"
-              className="text-edge"
-            />
-            <circle
-              cx="40"
-              cy="40"
-              r="32"
-              stroke={scoreHex}
-              strokeWidth="5"
-              fill="transparent"
-              strokeDasharray={CIRCLE_CIRCUMFERENCE}
-              strokeDashoffset={scoreDashOffset}
-              strokeLinecap="round"
-              className="transition-all duration-500 ease-out"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className={`text-xl font-bold font-mono leading-none ${scoreColorClass}`}>
-              {scoreDisplay}
-            </span>
-            <span className="mt-0.5 font-mono text-[10px] leading-none text-dim">/ 100</span>
+        {/* Quadrant Risk Breakdown Bars (7 cols) */}
+        <div className="flex flex-col gap-4 lg:col-span-7">
+          <div className="flex items-center justify-between pb-1 border-b border-edge/40">
+            <span className="text-xs font-semibold text-ink">Quadrant weight telemetry</span>
+            <div className="flex items-center gap-3 text-[11px] text-dim">
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-risk-red" />
+                <span>Critical (≥50%)</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-risk-amber" />
+                <span>Medium (&lt;50%)</span>
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Short Plain-Language Explanation */}
-        <div className="flex flex-1 flex-col justify-center min-w-[130px]">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-dim mb-0.5">
-            Threat Assessment
-          </span>
-          <p className="text-xs leading-relaxed text-dim">
-            {scoreExplanation(rawScore)}
+          <div className="space-y-3.5">
+            {QUADRANT_CONFIG.map(({ key, label, max, icon }) => {
+              const rawVal = quadrantsData[key];
+              const hasVal = typeof rawVal === "number" && !isNaN(rawVal);
+              // Guaranteed never to exceed max
+              const clampedVal = hasVal ? Math.max(0, Math.min(rawVal, max)) : 0;
+              const colorInfo = getSignalColorInfo(clampedVal, max);
+
+              return (
+                <div key={key} className="rounded-lg border border-edge/60 bg-canvas/60 p-3">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <div className="flex min-w-0 items-center gap-2 text-ink">
+                      <span className="text-dim shrink-0">{icon}</span>
+                      <span className="font-medium text-sm text-ink">{label}</span>
+                    </div>
+                    <div className="shrink-0 font-mono text-xs flex items-center gap-2">
+                      {hasVal ? (
+                        <>
+                          <span className={`font-semibold text-sm ${colorInfo.text}`}>
+                            {clampedVal}
+                          </span>
+                          <span className="text-dim">/ {max} pts</span>
+                          <span className="rounded border border-edge/40 bg-surface px-1.5 py-0.5 text-[10px] font-mono text-dim">
+                            {Math.round(colorInfo.pct)}%
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-dim">—</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Progress Track with strictly computed fill width */}
+                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-canvas border border-edge/40">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${colorInfo.barBg}`}
+                      style={{ width: `${Math.max(0, Math.min(100, colorInfo.pct))}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="text-[11px] text-dim text-right pt-1">
+            Quadrants sum to 100 points max across 4 forensic signal categories.
           </p>
         </div>
       </div>
-
-      {/* Signal Breakdown Header with Color Legend */}
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-medium text-ink">Signal Breakdown</span>
-        <div className="flex items-center gap-2 text-[10px] text-dim">
-          <span className="flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-risk-red" />
-            High
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-risk-amber" />
-            Medium
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-risk-green" />
-            Low
-          </span>
-        </div>
-      </div>
-
-      {/* Quadrant Risk Breakdown Rows */}
-      <div className="flex flex-1 flex-col justify-between gap-2.5">
-        {QUADRANT_CONFIG.map(({ key, label, max, icon }) => {
-          const val = quadrantsData[key];
-          const hasVal = typeof val === "number" && !isNaN(val);
-          const colorInfo = getSignalColorInfo(val, max);
-          const barWidthPercent = hasVal ? colorInfo.pct : 0;
-
-          return (
-            <div key={key} className="flex flex-col gap-1">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex min-w-0 items-center gap-1.5 text-ink">
-                  <span className="shrink-0 text-dim">{icon}</span>
-                  <span className="truncate font-medium">{label}</span>
-                </div>
-                <div className="shrink-0 font-mono text-xs">
-                  {hasVal ? (
-                    <>
-                      <span className={`font-semibold ${colorInfo.text}`}>{val}</span>
-                      <span className="text-dim"> / {max} pts</span>
-                    </>
-                  ) : (
-                    <span className="text-dim">—</span>
-                  )}
-                </div>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-canvas">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${colorInfo.barBg}`}
-                  style={{ width: `${barWidthPercent}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+    </div>
   );
 }

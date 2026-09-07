@@ -6,10 +6,10 @@
   "risk_score": 84,
   "classification": "bec",
   "quadrants": {
-    "header_routing": 18,
-    "auth_failure": 6,
-    "nlp_language": 42,
-    "reputation": 18
+    "header_routing": 22,
+    "auth_failure": 18,
+    "nlp_language": 30,
+    "reputation": 14
   },
   "authentication": { "spf": "pass", "dkim": "pass", "dmarc": "pass" },
   "trace": [
