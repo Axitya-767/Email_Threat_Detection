@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Environment variables
+.env
+.env.local
+
+# MaxMind binary databases
+data/*.mmdb
+*.mmdb
+
+# WeasyPrint / PDF outputs
+*.pdf
+
+# Model caches
+hf_cache/
+.cache/
+
+# Test artifacts
+.pytest_cache/
+tests/test_samples/
