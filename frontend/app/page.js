@@ -158,7 +158,7 @@ function DashboardContent() {
 
           <div className="flex items-center gap-3">
             <PrivacyToggle data={data} masked={masked} setMasked={setMasked} />
-            <ReportButton data={data} masked={masked} />
+            <ReportButton data={data} masked={masked} caseId={activeCaseMeta?.id} />
           </div>
         </div>
 
@@ -316,7 +316,7 @@ function DashboardContent() {
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                <ReportButton data={data} masked={masked} />
+                <ReportButton data={data} masked={masked} caseId={activeCaseMeta?.id} />
                 <Link
                   href="/cases"
                   className="inline-flex items-center gap-2 rounded-lg border border-edge bg-canvas px-4 py-2 text-xs font-medium text-ink hover:border-accent hover:text-accent transition-colors"

@@ -1,10 +1,18 @@
 'use client';
 
-import { use, useMemo } from "react";
+import { useState, use, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Printer, Download, ExternalLink, FileCode } from "lucide-react";
-import { CASES_LIST } from "../../../lib/cases";
+import { ArrowLeft, Download, ExternalLink, FileCode } from "lucide-react";
+import PrivacyToggle from "../../../components/PrivacyToggle";
+import {
+  CASES_LIST,
+  maskEmail,
+  maskName,
+  maskIp,
+  maskEntity,
+  sanitizeReport,
+} from "../../../lib/cases";
 
 const REPORT_TITLES = {
   "sbi-kyc": "SBI Impersonation Investigation",
@@ -103,9 +111,24 @@ export default function CaseReportDetailPage({ params }) {
   const severityLabel =
     riskScore >= 80 ? "Critical" : riskScore >= 60 ? "High" : riskScore >= 30 ? "Moderate" : "Low";
 
+  const [isMasked, setIsMasked] = useState(true);
+
+  const displaySenderName = isMasked ? maskName(senderName) : senderName;
+  const displaySenderEmail = isMasked ? maskEmail(senderEmail) : senderEmail;
+  const displayOriginIp = isMasked ? maskIp(trace[0]?.ip) : (trace[0]?.ip || "Not available");
+  const displayTerminalIp = isMasked
+    ? maskIp(trace[trace.length - 1]?.ip)
+    : (trace[trace.length - 1]?.ip || "Not available");
+
   function handleDownloadJson() {
     const fileName = `${caseId}_forensic_data.json`;
-    const blob = new Blob([JSON.stringify(caseItem, null, 2)], { type: "application/json" });
+    const exportData = isMasked
+      ? {
+          ...caseItem,
+          data: sanitizeReport(caseItem.data, true),
+        }
+      : caseItem;
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -121,17 +144,28 @@ export default function CaseReportDetailPage({ params }) {
       {/* Print Stylesheet Overrides */}
       <style>{`
         @media print {
-          body {
+          @page {
+            size: A4 portrait;
+            margin: 12mm 15mm;
+          }
+          body, html {
             background-color: #ffffff !important;
             color: #000000 !important;
           }
-          aside, nav, .screen-only-toolbar {
+          aside, nav, header, footer:not(.print-paper *), .screen-only-toolbar, .no-print, button, a.screen-only, [role="dialog"], .fixed {
             display: none !important;
           }
           main {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
+            background: #ffffff !important;
+          }
+          .min-h-screen {
+            min-height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: #ffffff !important;
           }
           .print-paper {
             box-shadow: none !important;
@@ -158,9 +192,12 @@ export default function CaseReportDetailPage({ params }) {
         </Link>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* PII Shield / Masking Toggle matching dashboard aesthetic */}
+          <PrivacyToggle data={data} isMasked={isMasked} setIsMasked={setIsMasked} label="PII Masking" />
+
           {/* Direct Download of pre-generated PDF */}
           <a
-            href={`/api/reports/${caseId}/pdf`}
+            href={`/reports/${caseId}-forensic-report.pdf`}
             download={`${caseId}-forensic-report.pdf`}
             className="inline-flex items-center gap-1.5 rounded-lg border border-black/80 bg-white px-3 py-1.5 font-semibold text-black hover:bg-neutral-100 transition-colors shadow-xs"
             title="Download verified investigation PDF"
@@ -169,33 +206,22 @@ export default function CaseReportDetailPage({ params }) {
             <span>Download Official PDF</span>
           </a>
 
-          {/* Native Browser Print / Save as PDF */}
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-3 py-1.5 font-medium text-ink hover:border-accent hover:text-accent transition-colors"
-            title="Print or save via browser PDF driver"
-          >
-            <Printer className="h-3.5 w-3.5" />
-            <span>Print / Save PDF</span>
-          </button>
-
           {/* Raw JSON Download */}
           <button
             type="button"
             onClick={handleDownloadJson}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-3 py-1.5 font-medium text-dim hover:text-ink transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-3 py-1.5 font-medium text-dim hover:text-ink transition-colors cursor-pointer"
             title="Download underlying JSON data"
           >
             <FileCode className="h-3.5 w-3.5" />
-            <span>JSON</span>
+            <span>Evidence JSON</span>
           </button>
 
           {/* Link to Interactive Dashboard */}
           <button
             type="button"
             onClick={() => router.push(`/?case=${caseItem.slug}`)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-3 py-1.5 font-medium text-dim hover:text-accent transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-3 py-1.5 font-medium text-dim hover:text-accent transition-colors cursor-pointer"
             title="Open interactive case analysis"
           >
             <ExternalLink className="h-3.5 w-3.5" />
@@ -252,7 +278,7 @@ export default function CaseReportDetailPage({ params }) {
                 <th className="border-r border-black bg-neutral-100 p-2 font-bold uppercase text-neutral-800">
                   Report Status
                 </th>
-                <td className="p-2 font-mono font-semibold">FINAL // VERIFIED</td>
+                <td className="p-2 font-mono font-semibold">FINAL // {isMasked ? "MASKED / REDACTED" : "VERIFIED"}</td>
               </tr>
               <tr>
                 <th className="border-r border-black bg-neutral-100 p-2 font-bold uppercase text-neutral-800">
@@ -278,8 +304,8 @@ export default function CaseReportDetailPage({ params }) {
           <p className="mt-2 text-justify">
             A digital forensic examination was conducted on evidence sample <strong>&ldquo;{filename}&rdquo;</strong> (SHA-256:{" "}
             <code className="font-mono text-[10px]">{sha256.slice(0, 24)}...</code>) cataloged under case reference{" "}
-            <strong>{caseId}</strong>. The communication claims origin from sender <strong>{senderName}</strong> (&lt;
-            <span className="font-mono">{senderEmail}</span>&gt;). Deterministic protocol evaluation and telemetry analysis
+            <strong>{caseId}</strong>. The communication claims origin from sender <strong>{displaySenderName}</strong> (&lt;
+            <span className="font-mono">{displaySenderEmail}</span>&gt;). Deterministic protocol evaluation and telemetry analysis
             assessed an authoritative fraud risk score of <strong>{riskScore} out of 100</strong>, resulting in an investigative threat
             classification of <strong>{classification}</strong>.
           </p>
@@ -333,22 +359,22 @@ export default function CaseReportDetailPage({ params }) {
                 </tr>
                 <tr>
                   <td className="border-r border-black p-1.5 font-sans font-medium">Claimed Sender Name</td>
-                  <td className="border-r border-black p-1.5">{senderName}</td>
+                  <td className="border-r border-black p-1.5">{displaySenderName}</td>
                   <td className="p-1.5 font-sans">Display name declared in MIME header</td>
                 </tr>
                 <tr>
                   <td className="border-r border-black p-1.5 font-sans font-medium">Claimed Sender Email</td>
-                  <td className="border-r border-black p-1.5">{senderEmail}</td>
+                  <td className="border-r border-black p-1.5">{displaySenderEmail}</td>
                   <td className="p-1.5 font-sans">Header &ldquo;From&rdquo; field identity</td>
                 </tr>
                 <tr>
                   <td className="border-r border-black p-1.5 font-sans font-medium">Initial Originating IP</td>
-                  <td className="border-r border-black p-1.5">{trace[0]?.ip || "Not available"}</td>
+                  <td className="border-r border-black p-1.5">{displayOriginIp}</td>
                   <td className="p-1.5 font-sans">{trace[0]?.place || "Initial network hop"}</td>
                 </tr>
                 <tr>
                   <td className="border-r border-black p-1.5 font-sans font-medium">Terminal Mail Server</td>
-                  <td className="border-r border-black p-1.5">{trace[trace.length - 1]?.ip || "Not available"}</td>
+                  <td className="border-r border-black p-1.5">{displayTerminalIp}</td>
                   <td className="p-1.5 font-sans">{trace[trace.length - 1]?.place || "Destination host"}</td>
                 </tr>
               </tbody>
@@ -436,7 +462,7 @@ export default function CaseReportDetailPage({ params }) {
                   {trace.map((h, idx) => (
                     <tr key={idx}>
                       <td className="border-r border-black p-1.5 font-bold">#{h.hop_order}</td>
-                      <td className="border-r border-black p-1.5">{h.ip}</td>
+                      <td className="border-r border-black p-1.5">{isMasked ? maskIp(h.ip) : h.ip}</td>
                       <td className="border-r border-black p-1.5 font-sans">{h.place}</td>
                       <td className="border-r border-black p-1.5 text-[9.5px]">
                         {h.relayed_at ? h.relayed_at.replace("T", " ").replace(".000Z", "") : "—"}
@@ -577,14 +603,14 @@ export default function CaseReportDetailPage({ params }) {
                 {trace[0]?.ip && (
                   <tr>
                     <td className="border-r border-black p-1.5 font-sans font-medium">IP Address (Origin)</td>
-                    <td className="border-r border-black p-1.5">{trace[0].ip}</td>
+                    <td className="border-r border-black p-1.5">{isMasked ? maskIp(trace[0].ip) : trace[0].ip}</td>
                     <td className="p-1.5 font-sans">Initial relay server</td>
                   </tr>
                 )}
                 {senderEmail && (
                   <tr>
                     <td className="border-r border-black p-1.5 font-sans font-medium">Email Address</td>
-                    <td className="border-r border-black p-1.5">{senderEmail}</td>
+                    <td className="border-r border-black p-1.5">{displaySenderEmail}</td>
                     <td className="p-1.5 font-sans">Header sender address</td>
                   </tr>
                 )}
@@ -598,7 +624,7 @@ export default function CaseReportDetailPage({ params }) {
                 {artifacts.map((art, idx) => (
                   <tr key={idx}>
                     <td className="border-r border-black p-1.5 font-sans font-medium">Artifact Identifier</td>
-                    <td className="border-r border-black p-1.5">{art}</td>
+                    <td className="border-r border-black p-1.5">{isMasked ? "[REDACTED_IOC]" : art}</td>
                     <td className="p-1.5 font-sans">Extracted payload / banking marker</td>
                   </tr>
                 ))}
@@ -651,8 +677,8 @@ export default function CaseReportDetailPage({ params }) {
                 <tbody className="divide-y divide-black font-mono">
                   {edges.map((e, idx) => (
                     <tr key={idx}>
-                      <td className="border-r border-black p-1.5">{e.from}</td>
-                      <td className="border-r border-black p-1.5">{e.to}</td>
+                      <td className="border-r border-black p-1.5">{isMasked ? maskEntity(e.from) : e.from}</td>
+                      <td className="border-r border-black p-1.5">{isMasked ? maskEntity(e.to) : e.to}</td>
                       <td className="p-1.5 font-sans font-medium">{e.reason}</td>
                     </tr>
                   ))}
@@ -741,12 +767,12 @@ export default function CaseReportDetailPage({ params }) {
             )}
             {trace[0]?.ip && (
               <li>
-                <strong>Origin Routing:</strong> Initial relay originated from IP {trace[0].ip} ({trace[0].place || "unspecified location"}).
+                <strong>Origin Routing:</strong> Initial relay originated from IP {isMasked ? maskIp(trace[0].ip) : trace[0].ip} ({trace[0].place || "unspecified location"}).
               </li>
             )}
             {artifacts.length > 0 && (
               <li>
-                <strong>Identified Artifacts:</strong> Extracted forensic financial/payload tokens: {artifacts.join(", ")}.
+                <strong>Identified Artifacts:</strong> Extracted forensic financial/payload tokens: {isMasked ? artifacts.map(() => "[REDACTED_IOC]").join(", ") : artifacts.join(", ")}.
               </li>
             )}
           </ol>
@@ -765,7 +791,7 @@ export default function CaseReportDetailPage({ params }) {
               <>
                 {trace[0]?.ip && (
                   <li>
-                    <strong>Network Perimeter Defense:</strong> Implement temporary boundary firewall block on IP {trace[0].ip}.
+                    <strong>Network Perimeter Defense:</strong> Implement temporary boundary firewall block on IP {isMasked ? maskIp(trace[0].ip) : trace[0].ip}.
                   </li>
                 )}
                 {typosquat && (

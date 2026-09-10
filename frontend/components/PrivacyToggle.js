@@ -12,7 +12,17 @@ const QUICK_REASONS = [
   "Victim notification",
 ];
 
-export default function PrivacyToggle({ data, masked, setMasked }) {
+export default function PrivacyToggle({
+  data,
+  masked,
+  setMasked,
+  isMasked,
+  setIsMasked,
+  label = "PII Masking",
+}) {
+  const currentMasked = typeof isMasked === "boolean" ? isMasked : Boolean(masked);
+  const updateMasked = setIsMasked || setMasked;
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [reason, setReason] = useState("");
   const [pin, setPin] = useState("");
@@ -31,9 +41,9 @@ export default function PrivacyToggle({ data, masked, setMasked }) {
 
   const handleToggle = () => {
     if (!canToggle) return;
-    if (!masked) {
+    if (!currentMasked) {
       // Masking back to true does NOT require confirmation
-      setMasked(true);
+      updateMasked(true);
     } else {
       // Switching from masked to unmasked requires audited confirmation with PIN
       setReason("");
@@ -68,7 +78,7 @@ export default function PrivacyToggle({ data, masked, setMasked }) {
     };
 
     setAccessLogs((prev) => [newEntry, ...prev]);
-    setMasked(false);
+    updateMasked(false);
     setShowConfirmModal(false);
     setReason("");
     setPin("");
@@ -89,7 +99,7 @@ export default function PrivacyToggle({ data, masked, setMasked }) {
       <div className="inline-flex items-center gap-3 rounded-lg border border-edge bg-surface px-3 py-2">
         <div className="flex items-center gap-2">
           <svg
-            className={`h-4 w-4 ${masked ? "text-risk-green" : "text-risk-red"}`}
+            className={`h-4 w-4 ${currentMasked ? "text-risk-green" : "text-risk-red"}`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -99,37 +109,37 @@ export default function PrivacyToggle({ data, masked, setMasked }) {
             aria-hidden="true"
           >
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            {masked ? <path d="m9 12 2 2 4-4" /> : <path d="m10 10 4 4m0-4-4 4" />}
+            {currentMasked ? <path d="m9 12 2 2 4-4" /> : <path d="m10 10 4 4m0-4-4 4" />}
           </svg>
-          <span className="text-xs font-semibold text-ink">PII Shield</span>
+          <span className="text-xs font-semibold text-ink">{label}</span>
         </div>
 
         <span
           className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider border ${
-            masked
+            currentMasked
               ? "border-risk-green/30 bg-risk-green/15 text-risk-green"
               : "border-risk-red/50 bg-risk-red/25 text-risk-red animate-pulse"
           }`}
         >
-          {masked ? "Protected" : "Exposed"}
+          {currentMasked ? "PROTECTED" : "EXPOSED"}
         </span>
 
         <button
           type="button"
           role="switch"
-          aria-checked={!masked}
+          aria-checked={!currentMasked}
           aria-label="Toggle PII Masking"
           disabled={!canToggle}
           onClick={handleToggle}
           className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border transition-all focus:outline-hidden focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50 ${
-            !masked
+            !currentMasked
               ? "border-risk-red bg-risk-red shadow-xs shadow-red-600/50"
               : "border-edge bg-canvas/80"
           }`}
         >
           <span
             className={`inline-block h-3.5 w-3.5 rounded-full shadow-xs transition-transform ${
-              !masked
+              !currentMasked
                 ? "translate-x-[18px] bg-white"
                 : "translate-x-[3px] bg-dim/60"
             }`}

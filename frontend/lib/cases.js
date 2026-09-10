@@ -123,3 +123,84 @@ export function getClassificationBadgeClasses(classification) {
   }
   return "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
 }
+
+export function maskEmail(email) {
+  if (!email || typeof email !== "string") return "[REDACTED]";
+  const [local, domain] = email.split("@");
+  if (!domain) return "[REDACTED]";
+  const maskedLocal =
+    local.length > 2
+      ? `${local[0]}***${local[local.length - 1]}`
+      : `${local[0] || ""}***`;
+  return `${maskedLocal}@${domain}`;
+}
+
+export function maskName(name) {
+  if (!name || typeof name !== "string") return "[REDACTED]";
+  return name
+    .split(" ")
+    .map((word) => (word.length > 1 ? `${word[0]}***` : `${word}***`))
+    .join(" ");
+}
+
+export function maskIp(ip) {
+  if (!ip || typeof ip !== "string") return "[REDACTED]";
+  const parts = ip.split(".");
+  if (parts.length === 4) {
+    return `${parts[0]}.${parts[1]}.***.***`;
+  }
+  return "[MASKED_IP]";
+}
+
+export function maskEntity(val) {
+  if (!val || typeof val !== "string") return val;
+  if (val.includes("@")) return maskEmail(val);
+  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(val)) return maskIp(val);
+  return val;
+}
+
+export function sanitizeReport(data, isMasked) {
+  if (!data) return {};
+  if (!isMasked) return data;
+
+  return {
+    ...data,
+    sender: {
+      ...data.sender,
+      name: maskName(data.sender?.name),
+      email: maskEmail(data.sender?.email),
+    },
+    trace: Array.isArray(data.trace)
+      ? data.trace.map((hop) => ({
+          ...hop,
+          ip: maskIp(hop.ip),
+        }))
+      : [],
+    iocs: {
+      ...data.iocs,
+      artifacts: Array.isArray(data.iocs?.artifacts)
+        ? data.iocs.artifacts.map(() => "[REDACTED_IOC]")
+        : [],
+    },
+    relationships: {
+      nodes: Array.isArray(data.relationships?.nodes)
+        ? data.relationships.nodes.map((node) => {
+            if (node.type === "ip") {
+              return { ...node, label: maskIp(node.label) };
+            }
+            if (node.type === "email") {
+              return { ...node, label: maskEmail(node.label) };
+            }
+            return node;
+          })
+        : [],
+      edges: Array.isArray(data.relationships?.edges)
+        ? data.relationships.edges.map((e) => ({
+            ...e,
+            from: maskEntity(e.from),
+            to: maskEntity(e.to),
+          }))
+        : [],
+    },
+  };
+}
