@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Cases", href: "/cases" },
-  { label: "Campaigns", href: "#" },
+  { label: "Campaigns", href: "/campaigns" },
   { label: "Reports", href: "#" },
   { label: "Settings", href: "#" },
 ];
@@ -87,7 +87,8 @@ export default function Sidebar() {
           {navItems.map((item) => {
             const isActive =
               (item.label === "Dashboard" && pathname === "/") ||
-              (item.label === "Cases" && (pathname === "/cases" || pathname?.startsWith("/cases/")));
+              (item.label === "Cases" && (pathname === "/cases" || pathname?.startsWith("/cases/"))) ||
+              (item.label === "Campaigns" && (pathname === "/campaigns" || pathname?.startsWith("/campaigns/")));
 
             return (
               <Link
