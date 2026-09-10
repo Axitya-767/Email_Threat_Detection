@@ -1,0 +1,337 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 6 0 R /Resources << /Font << /F1 9 0 R /F2 10 0 R >> >> >>
+endobj
+6 0 obj
+<< /Length 9767 >>
+stream
+0.3 w 0.4 g 45.00 809.89 m 550.28 809.89 l S
+BT /F2 7 Tf 0.2 g 45.00 813.89 Td (CONFIDENTIAL // LAW ENFORCEMENT & FORENSIC USE ONLY - CASE ID: CASE-006) Tj ET
+0.3 w 0.4 g 45.00 32 m 550.28 32 l S
+BT /F1 7.5 Tf 0.3 g 45.00 22 Td (Forensic Examination Report | Case ID: CASE-006 | Platform Evidence Record) Tj ET
+BT /F2 7.5 Tf 0.3 g 490.28 22 Td (Page 1 of 3) Tj ET
+BT /F2 15.00 Tf 0 g 45.00 783.89 Td (EMAIL THREAT FORENSIC INVESTIGATION REPORT) Tj ET
+BT /F1 8.00 Tf 0 g 45.00 769.89 Td (OFFICIAL DIGITAL FORENSIC EXAMINATION DOSSIER // LAW ENFORCEMENT & SOC RECORD) Tj ET
+1.50 w 0 0 0 RG 45.00 755.89 m 550.28 755.89 l S
+0.92 g 0.75 w 0 0 0 RG 45.00 728.89 505.00 15.00 re B
+BT /F2 7.50 Tf 0 g 50.00 733.89 Td (Case Identifier) Tj ET
+BT /F2 7.50 Tf 0 g 170.00 733.89 Td (Examination Date) Tj ET
+BT /F2 7.50 Tf 0 g 280.00 733.89 Td (Investigation Status) Tj ET
+BT /F2 7.50 Tf 0 g 400.00 733.89 Td (Evidence Hash \(SHA-256\)) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 713.89 505.00 15.00 re B
+BT /F1 7.50 Tf 0 g 50.00 718.89 Td (CASE-006) Tj ET
+BT /F1 7.50 Tf 0 g 170.00 718.89 Td (2026-09-05) Tj ET
+BT /F1 7.50 Tf 0 g 280.00 718.89 Td (VERIFIED EXAMINATION) Tj ET
+BT /F1 7.50 Tf 0 g 400.00 718.89 Td (8c2a7f4e1d9b0536f8c4a0e7b3d1...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 698.89 505.00 15.00 re B
+BT /F1 7.50 Tf 0 g 50.00 703.89 Td (Classification: PHISHING) Tj ET
+BT /F1 7.50 Tf 0 g 170.00 703.89 Td (Risk Score: 76 / 100) Tj ET
+BT /F1 7.50 Tf 0 g 280.00 703.89 Td (Sample: Microsoft365_Pass...) Tj ET
+BT /F1 7.50 Tf 0 g 400.00 703.89 Td (File Size: 67 KB) Tj ET
+1.00 w 0 0 0 RG 45.00 696.89 m 550.28 696.89 l S
+BT /F2 10.50 Tf 0 g 45.00 684.89 Td (1.0 EXECUTIVE SUMMARY) Tj ET
+0.50 w 0 0 0 RG 45.00 680.89 m 550.28 680.89 l S
+BT /F1 8.50 Tf 0 g 45.00 668.89 Td (A forensic examination was conducted on evidence sample 'Microsoft365_Password_Expires_Today.eml' cataloged under) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 656.89 Td (reference CASE-006. The electronic message claims transmission from sender 'Microsoft 365 Helpdesk') Tj ET
+BT /F1 8.50 Tf 0 g 45.00 644.89 Td (\(noreply@microsoft-verify.net\). Automated and deterministic protocol evaluation assessed an authoritative risk score) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 632.89 Td (of 76 out of 100, resulting in a forensic threat classification of PHISHING.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 620.89 Td (Authentication protocol verification recorded SPF: FAIL, DKIM: NONE, and DMARC: FAIL. The message was accompanied by) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 608.89 Td (an identified lookalike typosquat target domain \(microsoft.com\), indicating intentional brand impersonation. Routing) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 596.89 Td (telemetry analyzed 3 relay hops from origin to terminal destination server.) Tj ET
+1.00 w 0 0 0 RG 45.00 590.89 m 550.28 590.89 l S
+BT /F2 10.50 Tf 0 g 45.00 578.89 Td (2.0 EMAIL & EVIDENCE SPECIFICATIONS) Tj ET
+0.50 w 0 0 0 RG 45.00 574.89 m 550.28 574.89 l S
+0.92 g 0.75 w 0 0 0 RG 45.00 547.89 505.00 15.00 re B
+BT /F2 8.00 Tf 0 g 50.00 552.89 Td (Evidence Field) Tj ET
+BT /F2 8.00 Tf 0 g 180.00 552.89 Td (Forensic Data Value) Tj ET
+BT /F2 8.00 Tf 0 g 400.00 552.89 Td (Verification Finding) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 532.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 537.89 Td (Original Filename) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 537.89 Td (Microsoft365_Password_Expires_Today.eml) Tj ET
+BT /F1 8.00 Tf 0 g 400.00 537.89 Td (Binary structure parsed and pres...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 517.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 522.89 Td (File Size) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 522.89 Td (67 KB) Tj ET
+BT /F1 8.00 Tf 0 g 400.00 522.89 Td (Standard envelope size) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 502.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 507.89 Td (Cryptographic Hash) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 507.89 Td (8c2a7f4e1d9b0536f8c4a0e7b3d1f5a9c6e2b8d4f0a7c3e...) Tj ET
+BT /F1 8.00 Tf 0 g 400.00 507.89 Td (SHA-256 cryptographic integrity ...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 487.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 492.89 Td (Claimed Sender Name) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 492.89 Td (Microsoft 365 Helpdesk) Tj ET
+BT /F1 8.00 Tf 0 g 400.00 492.89 Td (Header-extracted display name) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 472.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 477.89 Td (Claimed Sender Email) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 477.89 Td (noreply@microsoft-verify.net) Tj ET
+BT /F1 8.00 Tf 0 g 400.00 477.89 Td (Header From address) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 457.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 462.89 Td (Terminal Mail Server) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 462.89 Td (Mumbai, India) Tj ET
+BT /F1 8.00 Tf 0 g 400.00 462.89 Td (Terminal destination host) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 442.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 447.89 Td (Originating Node) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 447.89 Td (91.219.237.44) Tj ET
+BT /F1 8.00 Tf 0 g 400.00 447.89 Td (First recorded external IP hop) Tj ET
+1.00 w 0 0 0 RG 45.00 440.89 m 550.28 440.89 l S
+BT /F2 10.50 Tf 0 g 45.00 428.89 Td (3.0 AUTHENTICATION PROTOCOL ANALYSIS) Tj ET
+0.50 w 0 0 0 RG 45.00 424.89 m 550.28 424.89 l S
+BT /F1 8.50 Tf 0 g 45.00 412.89 Td (Standard email authentication protocols were checked against published Domain Name System \(DNS\) records.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 401.89 Td (Discrepancies indicate that the sending infrastructure was not authorized to transmit on behalf of the domain.) Tj ET
+0.92 g 0.75 w 0 0 0 RG 45.00 374.89 505.00 16.00 re B
+BT /F2 8.00 Tf 0 g 50.00 379.89 Td (Protocol) Tj ET
+BT /F2 8.00 Tf 0 g 190.00 379.89 Td (Verdict) Tj ET
+BT /F2 8.00 Tf 0 g 260.00 379.89 Td (Technical Examination Finding) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 358.89 505.00 16.00 re B
+BT /F1 8.00 Tf 0 g 50.00 363.89 Td (SPF \(Sender Policy Framework\)) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 363.89 Td (FAIL) Tj ET
+BT /F1 8.00 Tf 0 g 260.00 363.89 Td (Authorized host check: Sending server IP is not listed in domain ...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 342.89 505.00 16.00 re B
+BT /F1 8.00 Tf 0 g 50.00 347.89 Td (DKIM \(DomainKeys Identified\)) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 347.89 Td (NONE) Tj ET
+BT /F1 8.00 Tf 0 g 260.00 347.89 Td (No DKIM signature found in message header) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 326.89 505.00 16.00 re B
+BT /F1 8.00 Tf 0 g 50.00 331.89 Td (DMARC \(Domain Alignment\)) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 331.89 Td (FAIL) Tj ET
+BT /F1 8.00 Tf 0 g 260.00 331.89 Td (Domain alignment policy check: Failed alignment criteria with pub...) Tj ET
+1.00 w 0 0 0 RG 45.00 324.89 m 550.28 324.89 l S
+BT /F2 10.50 Tf 0 g 45.00 312.89 Td (4.0 HEADER & ROUTING INFRASTRUCTURE) Tj ET
+0.50 w 0 0 0 RG 45.00 308.89 m 550.28 308.89 l S
+BT /F1 8.50 Tf 0 g 45.00 296.89 Td (The message envelope traversed 3 recorded network transit hops. Network infrastructure was cross-referenced with) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 285.89 Td (autonomous system records and datacenter threat feeds.) Tj ET
+0.92 g 0.75 w 0 0 0 RG 45.00 260.89 505.00 14.00 re B
+BT /F2 7.50 Tf 0 g 50.00 265.89 Td (Hop) Tj ET
+BT /F2 7.50 Tf 0 g 85.00 265.89 Td (IP Address) Tj ET
+BT /F2 7.50 Tf 0 g 180.00 265.89 Td (Geographic Location) Tj ET
+BT /F2 7.50 Tf 0 g 295.00 265.89 Td (Relay Timestamp) Tj ET
+BT /F2 7.50 Tf 0 g 400.00 265.89 Td (Forensic Infrastructure Note) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 246.89 505.00 14.00 re B
+BT /F1 7.50 Tf 0 g 50.00 251.89 Td (#1) Tj ET
+BT /F1 7.50 Tf 0 g 85.00 251.89 Td (91.219.237.44) Tj ET
+BT /F1 7.50 Tf 0 g 180.00 251.89 Td (Kyiv, Ukraine) Tj ET
+BT /F1 7.50 Tf 0 g 295.00 251.89 Td (2026-09-06 04:10:02) Tj ET
+BT /F1 7.50 Tf 0 g 400.00 251.89 Td (Hosting ASN with prior phishing re...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 232.89 505.00 14.00 re B
+BT /F1 7.50 Tf 0 g 50.00 237.89 Td (#2) Tj ET
+BT /F1 7.50 Tf 0 g 85.00 237.89 Td (5.9.12.88) Tj ET
+BT /F1 7.50 Tf 0 g 180.00 237.89 Td (Frankfurt, Germany) Tj ET
+BT /F1 7.50 Tf 0 g 295.00 237.89 Td (2026-09-06 04:10:25) Tj ET
+BT /F1 7.50 Tf 0 g 400.00 237.89 Td (Hetzner transit) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 218.89 505.00 14.00 re B
+BT /F1 7.50 Tf 0 g 50.00 223.89 Td (#3) Tj ET
+BT /F1 7.50 Tf 0 g 85.00 223.89 Td (52.98.88.16) Tj ET
+BT /F1 7.50 Tf 0 g 180.00 223.89 Td (Mumbai, India) Tj ET
+BT /F1 7.50 Tf 0 g 295.00 223.89 Td (2026-09-06 04:10:59) Tj ET
+BT /F1 7.50 Tf 0 g 400.00 223.89 Td (Destination mail server) Tj ET
+1.00 w 0 0 0 RG 45.00 216.89 m 550.28 216.89 l S
+BT /F2 10.50 Tf 0 g 45.00 204.89 Td (5.0 LANGUAGE, INTENT & CONTENT ANALYSIS) Tj ET
+0.50 w 0 0 0 RG 45.00 200.89 m 550.28 200.89 l S
+BT /F1 8.50 Tf 0 g 45.00 188.89 Td (Content linguistics and social engineering vectors were scored at 25 out of 30 maximum allocated points. Extracted) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 177.89 Td (textual phrases were analyzed for deception patterns, urgency cues, and financial solicitation.) Tj ET
+0.92 g 0.75 w 0 0 0 RG 45.00 151.89 505.00 15.00 re B
+BT /F2 8.00 Tf 0 g 50.00 156.89 Td (Category / Signal) Tj ET
+BT /F2 8.00 Tf 0 g 190.00 156.89 Td (Detected Phrasing / Pattern) Tj ET
+BT /F2 8.00 Tf 0 g 455.00 156.89 Td (Confidence Assessment) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 136.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 141.89 Td (URGENCY) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 141.89 Td ("your Microsoft 365 password expires today") Tj ET
+BT /F1 8.00 Tf 0 g 455.00 141.89 Td (95.0% Match) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 121.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 126.89 Td (CREDENTIAL REQUEST) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 126.89 Td ("keep your current password by verifying below") Tj ET
+BT /F1 8.00 Tf 0 g 455.00 126.89 Td (91.0% Match) Tj ET
+1.00 w 0 0 0 RG 45.00 119.89 m 550.28 119.89 l S
+BT /F2 10.50 Tf 0 g 45.00 107.89 Td (6.0 REPUTATION & DOMAIN INTELLIGENCE) Tj ET
+0.50 w 0 0 0 RG 45.00 103.89 m 550.28 103.89 l S
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 7 0 R /Resources << /Font << /F1 9 0 R /F2 10 0 R >> >> >>
+endobj
+7 0 obj
+<< /Length 9404 >>
+stream
+0.3 w 0.4 g 45.00 809.89 m 550.28 809.89 l S
+BT /F2 7 Tf 0.2 g 45.00 813.89 Td (CONFIDENTIAL // LAW ENFORCEMENT & FORENSIC USE ONLY - CASE ID: CASE-006) Tj ET
+0.3 w 0.4 g 45.00 32 m 550.28 32 l S
+BT /F1 7.5 Tf 0.3 g 45.00 22 Td (Forensic Examination Report | Case ID: CASE-006 | Platform Evidence Record) Tj ET
+BT /F2 7.5 Tf 0.3 g 490.28 22 Td (Page 2 of 3) Tj ET
+0.92 g 0.75 w 0 0 0 RG 45.00 776.89 505.00 15.00 re B
+BT /F2 8.00 Tf 0 g 50.00 781.89 Td (Attribute) Tj ET
+BT /F2 8.00 Tf 0 g 180.00 781.89 Td (Observed Evidence) Tj ET
+BT /F2 8.00 Tf 0 g 340.00 781.89 Td (Analyst Interpretation) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 761.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 766.89 Td (Domain Age) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 766.89 Td (6 days) Tj ET
+BT /F1 8.00 Tf 0 g 340.00 766.89 Td (High anomaly: Domain registered immediately pr...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 746.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 751.89 Td (Typosquatting Target) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 751.89 Td (microsoft.com) Tj ET
+BT /F1 8.00 Tf 0 g 340.00 751.89 Td (Deliberate brand impersonation targeting legit...) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 731.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 736.89 Td (Reputation Score Contribution) Tj ET
+BT /F1 8.00 Tf 0 g 180.00 736.89 Td (12 / 15 pts) Tj ET
+BT /F1 8.00 Tf 0 g 340.00 736.89 Td (Elevated risk: Associated infrastructure flagg...) Tj ET
+1.00 w 0 0 0 RG 45.00 729.89 m 550.28 729.89 l S
+BT /F2 10.50 Tf 0 g 45.00 717.89 Td (7.0 INDICATORS OF COMPROMISE \(IOCs\)) Tj ET
+0.50 w 0 0 0 RG 45.00 713.89 m 550.28 713.89 l S
+BT /F1 8.50 Tf 0 g 45.00 701.89 Td (The following actionable technical indicators were extracted during examination for perimeter blocklisting and SIEM) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 690.89 Td (correlation:) Tj ET
+0.92 g 0.75 w 0 0 0 RG 45.00 664.89 505.00 15.00 re B
+BT /F2 8.00 Tf 0 g 50.00 669.89 Td (Indicator Type) Tj ET
+BT /F2 8.00 Tf 0 g 170.00 669.89 Td (Technical Value) Tj ET
+BT /F2 8.00 Tf 0 g 380.00 669.89 Td (Context / Threat Finding) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 649.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 654.89 Td (IP Address \(Origin\)) Tj ET
+BT /F1 8.00 Tf 0 g 170.00 654.89 Td (91.219.237.44) Tj ET
+BT /F1 8.00 Tf 0 g 380.00 654.89 Td (Originating relay host observed in he...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 634.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 639.89 Td (Email Address) Tj ET
+BT /F1 8.00 Tf 0 g 170.00 639.89 Td (noreply@microsoft-verify.net) Tj ET
+BT /F1 8.00 Tf 0 g 380.00 639.89 Td (Header From address) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 619.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 624.89 Td (Typosquat Target) Tj ET
+BT /F1 8.00 Tf 0 g 170.00 624.89 Td (microsoft.com) Tj ET
+BT /F1 8.00 Tf 0 g 380.00 624.89 Td (Target brand impersonated in attack) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 604.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 609.89 Td (Forensic Artifact) Tj ET
+BT /F1 8.00 Tf 0 g 170.00 609.89 Td (URL:https://microsoft-verify.net/reset) Tj ET
+BT /F1 8.00 Tf 0 g 380.00 609.89 Td (Extracted payment/URL artifact) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 589.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 594.89 Td (File Hash \(SHA-256\)) Tj ET
+BT /F1 8.00 Tf 0 g 170.00 594.89 Td (8c2a7f4e1d9b0536f8c4a0e7b3d1f5a9c6e2b8d4f0a7c...) Tj ET
+BT /F1 8.00 Tf 0 g 380.00 594.89 Td (Unique cryptographic hash of message ...) Tj ET
+1.00 w 0 0 0 RG 45.00 587.89 m 550.28 587.89 l S
+BT /F2 10.50 Tf 0 g 45.00 575.89 Td (8.0 ATTRIBUTION ASSESSMENT) Tj ET
+0.50 w 0 0 0 RG 45.00 571.89 m 550.28 571.89 l S
+BT /F2 9.00 Tf 0 g 45.00 559.89 Td (ATTRIBUTION FINDING: LIKELY SPOOFED DOMAIN IMPERSONATING MICROSOFT.COM) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 547.89 Td (Authentication failures combined with a detected lookalike domain registration establish clear domain spoofing.) Tj ET
+BT /F1 8.00 Tf 0 g 45.00 535.89 Td (Note: Attribution conclusions represent technical forensic assessments based on available telemetry and do not constitute) Tj ET
+BT /F1 8.00 Tf 0 g 45.00 525.89 Td (definitive legal identification without formal judicial subpoena records.) Tj ET
+1.00 w 0 0 0 RG 45.00 521.89 m 550.28 521.89 l S
+BT /F2 10.50 Tf 0 g 45.00 509.89 Td (9.0 CORRELATION & INFRASTRUCTURE RELATIONSHIPS) Tj ET
+0.50 w 0 0 0 RG 45.00 505.89 m 550.28 505.89 l S
+BT /F1 8.50 Tf 0 g 45.00 493.89 Td (Graph analysis cross-referenced entities across historical telemetry clusters and previous incident dossiers:) Tj ET
+0.92 g 0.75 w 0 0 0 RG 45.00 468.89 505.00 14.00 re B
+BT /F2 8.00 Tf 0 g 50.00 473.89 Td (Source Entity) Tj ET
+BT /F2 8.00 Tf 0 g 190.00 473.89 Td (Target Entity) Tj ET
+BT /F2 8.00 Tf 0 g 330.00 473.89 Td (Correlation Basis / Linkage) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 454.89 505.00 14.00 re B
+BT /F1 8.00 Tf 0 g 50.00 459.89 Td (email1) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 459.89 Td (domain1) Tj ET
+BT /F1 8.00 Tf 0 g 330.00 459.89 Td (credential harvest landing page) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 440.89 505.00 14.00 re B
+BT /F1 8.00 Tf 0 g 50.00 445.89 Td (email2) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 445.89 Td (domain1) Tj ET
+BT /F1 8.00 Tf 0 g 330.00 445.89 Td (same campaign domain) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 426.89 505.00 14.00 re B
+BT /F1 8.00 Tf 0 g 50.00 431.89 Td (domain1) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 431.89 Td (ip1) Tj ET
+BT /F1 8.00 Tf 0 g 330.00 431.89 Td (hosted on sending IP) Tj ET
+1.00 w 0 0 0 RG 45.00 424.89 m 550.28 424.89 l S
+BT /F2 10.50 Tf 0 g 45.00 412.89 Td (10.0 RISK ASSESSMENT & SIGNAL WEIGHTING) Tj ET
+0.50 w 0 0 0 RG 45.00 408.89 m 550.28 408.89 l S
+BT /F1 8.50 Tf 0 g 45.00 396.89 Td (Overall Risk Score: 76 / 100 \(Threshold evaluation: HIGH RISK\). The score is derived across four standardized) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 385.89 Td (examination quadrants:) Tj ET
+0.92 g 0.75 w 0 0 0 RG 45.00 359.89 505.00 15.00 re B
+BT /F2 8.00 Tf 0 g 50.00 364.89 Td (Quadrant Vector) Tj ET
+BT /F2 8.00 Tf 0 g 190.00 364.89 Td (Allocated Weight) Tj ET
+BT /F2 8.00 Tf 0 g 270.00 364.89 Td (Observed Score) Tj ET
+BT /F2 8.00 Tf 0 g 355.00 364.89 Td (Analytical Contribution) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 344.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 349.89 Td (Header & Routing) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 349.89 Td (30 pts) Tj ET
+BT /F1 8.00 Tf 0 g 270.00 349.89 Td (18 pts) Tj ET
+BT /F1 8.00 Tf 0 g 355.00 349.89 Td (Evaluates relay anomaly, ASN hosting, and h...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 329.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 334.89 Td (Authentication Failure) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 334.89 Td (25 pts) Tj ET
+BT /F1 8.00 Tf 0 g 270.00 334.89 Td (21 pts) Tj ET
+BT /F1 8.00 Tf 0 g 355.00 334.89 Td (Evaluates SPF, DKIM signature validity, and...) Tj ET
+1.00 g 0.50 w 0 0 0 RG 45.00 314.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 319.89 Td (Language & Intent) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 319.89 Td (30 pts) Tj ET
+BT /F1 8.00 Tf 0 g 270.00 319.89 Td (25 pts) Tj ET
+BT /F1 8.00 Tf 0 g 355.00 319.89 Td (Evaluates urgency, financial diversion, and...) Tj ET
+0.98 g 0.50 w 0 0 0 RG 45.00 299.89 505.00 15.00 re B
+BT /F1 8.00 Tf 0 g 50.00 304.89 Td (Reputation & History) Tj ET
+BT /F1 8.00 Tf 0 g 190.00 304.89 Td (15 pts) Tj ET
+BT /F1 8.00 Tf 0 g 270.00 304.89 Td (12 pts) Tj ET
+BT /F1 8.00 Tf 0 g 355.00 304.89 Td (Evaluates domain age, typosquatting targets...) Tj ET
+1.00 w 0 0 0 RG 45.00 297.89 m 550.28 297.89 l S
+BT /F2 10.50 Tf 0 g 45.00 285.89 Td (11.0 KEY INVESTIGATION FINDINGS) Tj ET
+0.50 w 0 0 0 RG 45.00 281.89 m 550.28 281.89 l S
+BT /F1 8.50 Tf 0 g 45.00 269.89 Td (1. High-confidence threat signature: Overall threat score exceeds enterprise containment threshold.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 257.89 Td (2. Message failed authentication verification: Sending host lacks authoritative domain alignment.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 245.89 Td (3. Lookalike brand impersonation identified: Attacker targeted legitimate entity 'microsoft.com'.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 233.89 Td (4. Origin routing: Outbound transmission originated from standard commercial/workspace relay.) Tj ET
+1.00 w 0 0 0 RG 45.00 227.89 m 550.28 227.89 l S
+BT /F2 10.50 Tf 0 g 45.00 215.89 Td (12.0 RECOMMENDED INVESTIGATION ACTIONS) Tj ET
+0.50 w 0 0 0 RG 45.00 211.89 m 550.28 211.89 l S
+BT /F1 8.50 Tf 0 g 45.00 199.89 Td (1. Evidence Preservation: Retain full raw RFC 5322 message headers and message body in forensic storage.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 187.89 Td (2. Network Containment: Implement perimeter firewall block on originating IP 91.219.237.44.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 175.89 Td (3. DNS Mitigation: Issue internal DNS sinkhole rule for identified typosquatting target microsoft.com.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 163.89 Td (4. Incident Response: Query mail gateway logs for all inbound messages matching the sending domain within past 30) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 151.89 Td (days.) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 139.89 Td (5. Account Safeguards: Enforce credential reset and session termination for any recipient who engaged with message) Tj ET
+BT /F1 8.50 Tf 0 g 45.00 127.89 Td (content.) Tj ET
+1.00 w 0 0 0 RG 45.00 121.89 m 550.28 121.89 l S
+BT /F2 10.50 Tf 0 g 45.00 109.89 Td (13.0 AUTOMATED NARRATIVE GENERATION ARCHITECTURE NOTE) Tj ET
+0.50 w 0 0 0 RG 45.00 105.89 m 550.28 105.89 l S
+BT /F1 8.00 Tf 0 g 45.00 93.89 Td (SYSTEM NOTICE: This document was produced via deterministic evidence extraction from validated email forensic JSON. The) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 8 0 R /Resources << /Font << /F1 9 0 R /F2 10 0 R >> >> >>
+endobj
+8 0 obj
+<< /Length 1582 >>
+stream
+0.3 w 0.4 g 45.00 809.89 m 550.28 809.89 l S
+BT /F2 7 Tf 0.2 g 45.00 813.89 Td (CONFIDENTIAL // LAW ENFORCEMENT & FORENSIC USE ONLY - CASE ID: CASE-006) Tj ET
+0.3 w 0.4 g 45.00 32 m 550.28 32 l S
+BT /F1 7.5 Tf 0.3 g 45.00 22 Td (Forensic Examination Report | Case ID: CASE-006 | Platform Evidence Record) Tj ET
+BT /F2 7.5 Tf 0.3 g 490.28 22 Td (Page 3 of 3) Tj ET
+BT /F1 8.00 Tf 0 g 45.00 791.89 Td (platform architecture is designed to integrate text-generation language models in future backend iterations to draft) Tj ET
+BT /F1 8.00 Tf 0 g 45.00 781.89 Td (extended contextual DFIR narratives while maintaining the underlying JSON as the single source of truth.) Tj ET
+1.00 w 0 0 0 RG 45.00 777.89 m 550.28 777.89 l S
+BT /F2 10.50 Tf 0 g 45.00 765.89 Td (14.0 EVIDENCE ATTESTATION & LEGAL DISCLAIMER) Tj ET
+0.50 w 0 0 0 RG 45.00 761.89 m 550.28 761.89 l S
+BT /F2 8.00 Tf 0 g 45.00 749.89 Td (REPORT IDENTIFIER: REP-CASE-006 | PLATFORM: Email Threat Intelligence & Forensic Platform | EVIDENCE SOURCE: Ingested) Tj ET
+BT /F2 8.00 Tf 0 g 45.00 737.89 Td (MIME/MSG Artifact | STATUS: VERIFIED FORENSIC RECORD) Tj ET
+BT /F1 7.50 Tf 0 g 45.00 725.89 Td (LEGAL DISCLAIMER: This document is an analytical examination record compiled from electronic message headers, cryptographic) Tj ET
+BT /F1 7.50 Tf 0 g 45.00 715.89 Td (authentication tokens, DNS telemetry, and network routing hops. Findings should be corroborated with original raw headers, provider) Tj ET
+BT /F1 7.50 Tf 0 g 45.00 705.89 Td (server logs, and judicial legal process before presentation in legal proceedings.) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+10 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000133 00000 n 
+0000010095 00000 n 
+0000019694 00000 n 
+0000000276 00000 n 
+0000010238 00000 n 
+0000019837 00000 n 
+0000021471 00000 n 
+0000021568 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+21671
+%%EOF

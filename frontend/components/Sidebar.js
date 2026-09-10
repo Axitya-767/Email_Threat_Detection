@@ -7,7 +7,7 @@ const navItems = [
   { label: "Dashboard", href: "/" },
   { label: "Cases", href: "/cases" },
   { label: "Campaigns", href: "#" },
-  { label: "Reports", href: "#" },
+  { label: "Reports", href: "/reports" },
   { label: "Settings", href: "#" },
 ];
 
@@ -87,7 +87,8 @@ export default function Sidebar() {
           {navItems.map((item) => {
             const isActive =
               (item.label === "Dashboard" && pathname === "/") ||
-              (item.label === "Cases" && (pathname === "/cases" || pathname?.startsWith("/cases/")));
+              (item.label === "Cases" && (pathname === "/cases" || pathname?.startsWith("/cases/"))) ||
+              (item.label === "Reports" && (pathname === "/reports" || pathname?.startsWith("/reports/")));
 
             return (
               <Link
