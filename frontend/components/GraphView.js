@@ -312,7 +312,7 @@ export default function GraphView({ data, masked }) {
   };
 
   return (
-    <div className="relative flex flex-col min-h-[520px] rounded-xl border border-edge bg-surface p-6 shadow-sm">
+    <div className="relative flex flex-col justify-between h-full min-h-[520px] rounded-xl border border-edge bg-surface p-6 shadow-sm">
       {/* Top Header */}
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3 border-b border-edge/60 pb-3 shrink-0">
         <div>
@@ -418,7 +418,7 @@ export default function GraphView({ data, masked }) {
       </div>
 
       {/* SVG Graph Viewport */}
-      <div className="relative h-[390px] min-h-[360px] w-full overflow-hidden rounded-lg border border-edge bg-canvas shrink-0">
+      <div className="relative flex-1 min-h-[420px] w-full overflow-hidden rounded-lg border border-edge bg-canvas shrink-0">
         <svg
           viewBox="0 0 960 460"
           className="h-full w-full select-none"
@@ -690,7 +690,7 @@ export default function GraphView({ data, masked }) {
         pushing the page content down naturally. Never floats or overlays. Exactly one drawer.
       */}
       {selectedNode && (
-        <div className="mt-3 rounded-lg border border-edge bg-canvas/90 p-3.5 animate-in fade-in duration-150">
+        <div className="mt-3 rounded-lg border border-edge bg-canvas/90 p-3.5 animate-in fade-in duration-150 shrink-0">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-edge/60 pb-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-md border border-edge bg-surface px-2 py-0.5 font-mono text-[10px] uppercase text-accent font-semibold">
@@ -746,7 +746,7 @@ export default function GraphView({ data, masked }) {
       )}
 
       {/* Footer Info Strip */}
-      <div className="mt-3 flex items-center justify-between pt-2 text-xs text-dim border-t border-edge/40">
+      <div className="mt-3 flex items-center justify-between pt-2 text-xs text-dim border-t border-edge/40 shrink-0">
         <span>
           {masked ? "PII masked in graph labels" : "Full entity identifiers displayed"}
         </span>

@@ -289,11 +289,11 @@ function DashboardContent() {
             Routing & Correlation
           </h2>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
-            <div className="lg:col-span-5 flex flex-col">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
+            <div className="lg:col-span-5 flex flex-col h-full">
               <MapView data={data} masked={masked} />
             </div>
-            <div className="lg:col-span-7 flex flex-col">
+            <div className="lg:col-span-7 flex flex-col h-full">
               <GraphView data={data} masked={masked} />
             </div>
           </div>
