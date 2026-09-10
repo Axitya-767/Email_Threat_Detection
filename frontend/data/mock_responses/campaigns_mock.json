@@ -1,0 +1,140 @@
+[
+  {
+    "id": "camp-01",
+    "name": "SBI KYC Spoof Wave",
+    "status": "active",
+    "risk_level": "critical",
+    "case_count": 7,
+    "first_seen": "2026-08-01",
+    "last_seen": "2026-09-05",
+    "target_sector": "Banking",
+    "shared_infrastructure": {
+      "asn": "AS197540",
+      "asn_name": "Top Layer Bulletproof Networks",
+      "ip_cluster": ["185.220.101.5", "185.220.101.9"],
+      "registrar": "NameCheap Inc."
+    },
+    "nodes": [
+      { "id": "node-ip-01", "type": "ip", "label": "185.220.101.5" },
+      { "id": "node-ip-02", "type": "ip", "label": "185.220.101.9" },
+      { "id": "node-dom-01", "type": "domain", "label": "sbi-support-desk.com" },
+      { "id": "node-em-01", "type": "email", "label": "ramesh@sbi-support-desk.com" },
+      { "id": "node-ioc-01", "type": "ioc", "label": "SHA256:4b7e2c91a... (KYC_Doc.pdf)" }
+    ]
+  },
+  {
+    "id": "camp-02",
+    "name": "ITD Tax Refund Harvest",
+    "status": "active",
+    "risk_level": "critical",
+    "case_count": 12,
+    "first_seen": "2026-08-14",
+    "last_seen": "2026-09-07",
+    "target_sector": "Government",
+    "shared_infrastructure": {
+      "asn": "AS197540",
+      "asn_name": "Top Layer Bulletproof Networks",
+      "ip_cluster": ["185.220.101.5", "185.220.101.14"],
+      "registrar": "NameCheap Inc."
+    },
+    "nodes": [
+      { "id": "node-ip-01-dup", "type": "ip", "label": "185.220.101.5" },
+      { "id": "node-ip-03", "type": "ip", "label": "185.220.101.14" },
+      { "id": "node-dom-02", "type": "domain", "label": "incometax-efiling-refund.gov.in.co" },
+      { "id": "node-em-02", "type": "email", "label": "notice-refund@incometax-efiling-refund.gov.in.co" },
+      { "id": "node-ioc-02", "type": "ioc", "label": "Artifact: itd-form16-macro.docm" }
+    ]
+  },
+  {
+    "id": "camp-03",
+    "name": "Global Vendor Wire Diversion",
+    "status": "active",
+    "risk_level": "high",
+    "case_count": 4,
+    "first_seen": "2026-07-22",
+    "last_seen": "2026-09-02",
+    "target_sector": "Enterprise",
+    "shared_infrastructure": {
+      "asn": "AS13335",
+      "asn_name": "Cloudflare Edge Services",
+      "ip_cluster": ["104.21.48.112", "172.67.189.44"],
+      "registrar": "Tucows Domains Inc."
+    },
+    "nodes": [
+      { "id": "node-ip-04", "type": "ip", "label": "104.21.48.112" },
+      { "id": "node-ip-05", "type": "ip", "label": "172.67.189.44" },
+      { "id": "node-dom-03", "type": "domain", "label": "acme-loglstics.com" },
+      { "id": "node-em-03", "type": "email", "label": "billing-update@acme-loglstics.com" },
+      { "id": "node-ioc-03", "type": "ioc", "label": "Artifact: Payment_Invoice_INV9921.xlsx" }
+    ]
+  },
+  {
+    "id": "camp-04",
+    "name": "Executive O365 Credential Siphon",
+    "status": "mitigated",
+    "risk_level": "high",
+    "case_count": 9,
+    "first_seen": "2026-06-15",
+    "last_seen": "2026-08-20",
+    "target_sector": "Enterprise",
+    "shared_infrastructure": {
+      "asn": "AS13335",
+      "asn_name": "Cloudflare Edge Services",
+      "ip_cluster": ["104.21.48.112", "172.67.210.8"],
+      "registrar": "Tucows Domains Inc."
+    },
+    "nodes": [
+      { "id": "node-ip-04-dup", "type": "ip", "label": "104.21.48.112" },
+      { "id": "node-ip-06", "type": "ip", "label": "172.67.210.8" },
+      { "id": "node-dom-04", "type": "domain", "label": "login-microsoftonline-verify.net" },
+      { "id": "node-em-04", "type": "email", "label": "admin-security@login-microsoftonline-verify.net" },
+      { "id": "node-ioc-04", "type": "ioc", "label": "Tool: EvilProxy-ReverseProxy-C2" }
+    ]
+  },
+  {
+    "id": "camp-05",
+    "name": "Campus Relay Credential Harvester",
+    "status": "active",
+    "risk_level": "medium",
+    "case_count": 3,
+    "first_seen": "2026-08-25",
+    "last_seen": "2026-09-08",
+    "target_sector": "Education",
+    "shared_infrastructure": {
+      "asn": "AS2764",
+      "asn_name": "APNIC Research & Regional Fabric",
+      "ip_cluster": ["139.130.4.55", "139.130.4.60"],
+      "registrar": "PDR Ltd. d/b/a PublicDomainRegistry"
+    },
+    "nodes": [
+      { "id": "node-ip-07", "type": "ip", "label": "139.130.4.55" },
+      { "id": "node-ip-08", "type": "ip", "label": "139.130.4.60" },
+      { "id": "node-dom-05", "type": "domain", "label": "student-portal-auth.edu.sync" },
+      { "id": "node-em-05", "type": "email", "label": "finaid-alert@student-portal-auth.edu.sync" },
+      { "id": "node-ioc-05", "type": "ioc", "label": "Payload: harvesting_script.js" }
+    ]
+  },
+  {
+    "id": "camp-06",
+    "name": "Faculty Research Phish Trap",
+    "status": "mitigated",
+    "risk_level": "medium",
+    "case_count": 5,
+    "first_seen": "2026-05-10",
+    "last_seen": "2026-07-15",
+    "target_sector": "Education",
+    "shared_infrastructure": {
+      "asn": "AS2764",
+      "asn_name": "APNIC Research & Regional Fabric",
+      "ip_cluster": ["139.130.4.55", "139.130.12.9"],
+      "registrar": "PDR Ltd. d/b/a PublicDomainRegistry"
+    },
+    "nodes": [
+      { "id": "node-ip-07-dup", "type": "ip", "label": "139.130.4.55" },
+      { "id": "node-ip-09", "type": "ip", "label": "139.130.12.9" },
+      { "id": "node-dom-06", "type": "domain", "label": "grant-portal-review.academic.co" },
+      { "id": "node-em-06", "type": "email", "label": "peer-review@grant-portal-review.academic.co" },
+      { "id": "node-ioc-06", "type": "ioc", "label": "Artifact: grant_proposal_v2.pdf.exe" }
+    ]
+  }
+]
