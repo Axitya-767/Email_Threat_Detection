@@ -2,273 +2,179 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Layers,
   Network,
   Server,
   ShieldAlert,
   Globe,
-  Mail,
-  FileCode,
-  Calendar,
+  ArrowUpRight,
+  ArrowRight,
+  ExternalLink,
+  CheckCircle2,
   Search,
   X,
-  Filter,
-  CheckCircle2,
-  AlertTriangle,
+  MapPin,
   Radio,
-  Building2,
-  ChevronDown,
-  ChevronUp,
-  Share2,
-  ArrowUpRight,
 } from "lucide-react";
-import rawCampaignsData from "../../data/mock_responses/campaigns_mock.json";
+import {
+  CASES_LIST,
+  getClassificationBadgeClasses,
+} from "../../lib/cases";
 
-function getRiskBadge(risk) {
-  const r = String(risk || "").toLowerCase();
-  if (r === "critical") {
-    return {
-      label: "Critical",
-      classes: "border border-risk-red/30 bg-risk-red/15 text-risk-red",
-      dot: "bg-risk-red",
-    };
-  }
-  if (r === "high") {
-    return {
-      label: "High",
-      classes: "border border-risk-amber/30 bg-risk-amber/15 text-risk-amber",
-      dot: "bg-risk-amber",
-    };
-  }
-  return {
-    label: "Medium",
-    classes: "border border-risk-green/30 bg-risk-green/15 text-risk-green",
-    dot: "bg-risk-green",
-  };
-}
-
-function getStatusBadge(status) {
-  const s = String(status || "").toLowerCase();
-  if (s === "active") {
-    return {
-      label: "Active",
-      classes: "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
-      dot: "bg-emerald-400 animate-pulse",
-    };
-  }
-  return {
-    label: "Mitigated",
-    classes: "border border-edge bg-canvas/60 text-dim",
-    dot: "bg-dim",
-  };
-}
-
-function getNodeTypeIcon(type) {
-  switch (type) {
-    case "ip":
-      return <Network className="h-3.5 w-3.5 text-accent" />;
-    case "domain":
-      return <Globe className="h-3.5 w-3.5 text-risk-amber" />;
-    case "email":
-      return <Mail className="h-3.5 w-3.5 text-risk-red" />;
-    case "ioc":
-      return <FileCode className="h-3.5 w-3.5 text-risk-green" />;
-    default:
-      return <Radio className="h-3.5 w-3.5 text-dim" />;
-  }
-}
-
-function getNodeTypeBadge(type) {
-  switch (type) {
-    case "ip":
-      return {
-        label: "IP Address",
-        classes: "border border-accent/30 bg-accent/15 text-accent",
-      };
-    case "domain":
-      return {
-        label: "Domain",
-        classes: "border border-risk-amber/30 bg-risk-amber/15 text-risk-amber",
-      };
-    case "email":
-      return {
-        label: "Email",
-        classes: "border border-risk-red/30 bg-risk-red/15 text-risk-red",
-      };
-    case "ioc":
-      return {
-        label: "Artifact",
-        classes: "border border-risk-green/30 bg-risk-green/15 text-risk-green",
-      };
-    default:
-      return {
-        label: type,
-        classes: "border border-edge bg-surface text-dim",
-      };
-  }
-}
+// Threat Campaigns with strict multi-case correlation (linked_cases.length >= 2)
+const CAMPAIGN_DEFINITIONS = [
+  {
+    id: "CAMP-01",
+    title: "Russian Bulletproof Hosting / Financial Spoof",
+    riskLevel: "CRITICAL",
+    riskScore: 91,
+    status: "active",
+    asn: "AS61754",
+    asnName: "Top Layer Privacy Fabric",
+    registrar: "NameCheap / PrivacyGuardian",
+    subnet: "185.220.101.0/24",
+    originIp: "185.220.101.5",
+    caseIds: ["CASE-001", "CASE-004"],
+    sharedIocs: [
+      { type: "ip", value: "185.220.101.5" },
+      { type: "domain", value: "sbi-support-desk.com" },
+      { type: "typosquat", value: "onlinesbi.sbi" },
+      { type: "domain", value: "incometax-india-gov.in" },
+      { type: "typosquat", value: "incometaxindia.gov.in" },
+    ],
+    verdict:
+      "Cases CASE-001 and CASE-004 share originating IP 185.220.101.5 routed through Amsterdam datacenter, identical registrar nexus, and simultaneous tax/banking credential phishing lures.",
+    routingTelemetry: [
+      { hop: 1, ip: "185.220.101.5", location: "Amsterdam, Netherlands", note: "Bulletproof C2 Datacenter" },
+      { hop: 2, ip: "94.130.88.21 / 51.89.42.17", location: "Frankfurt, DE & London, UK", note: "Intermediate Transit Relays" },
+      { hop: 3, ip: "103.21.244.0 / 49.36.80.10", location: "Mumbai & New Delhi, IN", note: "Enterprise Target MX Ingest" },
+    ],
+  },
+  {
+    id: "CAMP-02",
+    title: "Global Executive BEC / Wire Diversion Ring",
+    riskLevel: "CRITICAL",
+    riskScore: 84,
+    status: "active",
+    asn: "AS20262",
+    asnName: "Transit Bulletproof Route",
+    registrar: "Tucows / PublicDomainRegistry",
+    subnet: "Bulletproof Transit Relay",
+    originIp: "197.210.53.88",
+    caseIds: ["CASE-002", "CASE-005"],
+    sharedIocs: [
+      { type: "domain", value: "meridian-infra.com" },
+      { type: "domain", value: "apex-logistics-billing.com" },
+      { type: "typosquat", value: "apexlogistics.co.in" },
+      { type: "ip", value: "197.210.53.88" },
+      { type: "ip", value: "89.32.148.77" },
+    ],
+    verdict:
+      "Cases CASE-002 and CASE-005 correlate via identical BEC payment diversion TTPs, compromised corporate invoice threads, and offshore bulletproof transit relays.",
+    routingTelemetry: [
+      { hop: 1, ip: "197.210.53.88 / 89.32.148.77", location: "Lagos, NG & Bucharest, RO", note: "Bulletproof Session Origin" },
+      { hop: 2, ip: "40.107.8.52 / 103.86.99.21", location: "Singapore Transit Hub", note: "Compromised Tenant / Transit MX" },
+      { hop: 3, ip: "49.207.50.12 / 103.25.60.8", location: "Bengaluru & Pune, IN", note: "Corporate Target Ingest" },
+    ],
+  },
+];
 
 export default function CampaignsPage() {
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [riskFilter, setRiskFilter] = useState("all");
-  const [sectorFilter, setSectorFilter] = useState("all");
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [nodeTypeFilter, setNodeTypeFilter] = useState("all");
-  const [expandedCampaigns, setExpandedCampaigns] = useState({});
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedMapCampaign, setSelectedMapCampaign] = useState(null);
 
-  const toggleCampaignExpansion = (id) => {
-    setExpandedCampaigns((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+  // Strict Campaign Filter: ONLY display clusters where linked_cases.length >= 2
+  const activeCampaigns = useMemo(() => {
+    return CAMPAIGN_DEFINITIONS.map((camp) => {
+      // Hydrate cases from ground-truth CASES_LIST
+      const linkedCases = camp.caseIds
+        .map((id) => CASES_LIST.find((c) => c.id === id))
+        .filter(Boolean);
 
-  // Sectors list from dataset
-  const sectors = useMemo(() => {
-    const set = new Set();
-    rawCampaignsData.forEach((c) => {
-      if (c.target_sector) set.add(c.target_sector);
-    });
-    return Array.from(set);
+      return {
+        ...camp,
+        cases: linkedCases,
+      };
+    }).filter((camp) => camp.cases.length >= 2);
   }, []);
 
-  // Filtered campaigns
+  // Filtered campaigns based on search query & status filter
   const filteredCampaigns = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
 
-    return rawCampaignsData.filter((camp) => {
+    return activeCampaigns.filter((camp) => {
       // Status filter
       if (statusFilter !== "all" && camp.status !== statusFilter) {
         return false;
       }
-      // Risk filter
-      if (riskFilter !== "all" && camp.risk_level !== riskFilter) {
-        return false;
-      }
-      // Sector filter
-      if (sectorFilter !== "all" && camp.target_sector !== sectorFilter) {
-        return false;
-      }
-      // Search query
+      // Search query (matches title, ID, ASN, registrar, subnet, or case names)
       if (q) {
-        const matchesName = camp.name.toLowerCase().includes(q);
+        const matchesTitle = camp.title.toLowerCase().includes(q);
         const matchesId = camp.id.toLowerCase().includes(q);
-        const matchesSector = camp.target_sector?.toLowerCase().includes(q);
-        const matchesAsn = camp.shared_infrastructure?.asn?.toLowerCase().includes(q);
-        const matchesAsnName = camp.shared_infrastructure?.asn_name?.toLowerCase().includes(q);
-        const matchesRegistrar = camp.shared_infrastructure?.registrar?.toLowerCase().includes(q);
-        const matchesIps = camp.shared_infrastructure?.ip_cluster?.some((ip) =>
-          ip.toLowerCase().includes(q)
-        );
-        const matchesNodes = camp.nodes?.some(
-          (n) => n.label?.toLowerCase().includes(q) || n.type?.toLowerCase().includes(q)
+        const matchesAsn = camp.asn.toLowerCase().includes(q);
+        const matchesRegistrar = camp.registrar.toLowerCase().includes(q);
+        const matchesSubnet = camp.subnet.toLowerCase().includes(q);
+        const matchesCases = camp.cases.some(
+          (c) =>
+            c.name.toLowerCase().includes(q) ||
+            c.id.toLowerCase().includes(q)
         );
 
         return (
-          matchesName ||
+          matchesTitle ||
           matchesId ||
-          matchesSector ||
           matchesAsn ||
-          matchesAsnName ||
           matchesRegistrar ||
-          matchesIps ||
-          matchesNodes
+          matchesSubnet ||
+          matchesCases
         );
       }
       return true;
     });
-  }, [statusFilter, riskFilter, sectorFilter, searchQuery]);
+  }, [activeCampaigns, searchQuery, statusFilter]);
 
-  // Group filtered campaigns by shared infrastructure (ASN)
-  const clusters = useMemo(() => {
-    const clusterMap = {};
-
-    filteredCampaigns.forEach((camp) => {
-      const asnKey = camp.shared_infrastructure?.asn || "Unknown Infrastructure";
-      if (!clusterMap[asnKey]) {
-        clusterMap[asnKey] = {
-          asn: asnKey,
-          asnName: camp.shared_infrastructure?.asn_name || "Autonomous System",
-          registrar: camp.shared_infrastructure?.registrar || "Unspecified Registrar",
-          ipPool: new Set(),
-          campaigns: [],
-        };
-      }
-
-      clusterMap[asnKey].campaigns.push(camp);
-      if (Array.isArray(camp.shared_infrastructure?.ip_cluster)) {
-        camp.shared_infrastructure.ip_cluster.forEach((ip) => {
-          clusterMap[asnKey].ipPool.add(ip);
-        });
-      }
-    });
-
-    return Object.values(clusterMap).map((c) => ({
-      ...c,
-      id: c.asn,
-      ipPool: Array.from(c.ipPool),
-      totalCases: c.campaigns.reduce((acc, curr) => acc + (curr.case_count || 0), 0),
-    }));
-  }, [filteredCampaigns]);
-
-  // Flatten all nodes from filtered campaigns
-  const allAttributedNodes = useMemo(() => {
-    const nodes = [];
-
-    filteredCampaigns.forEach((camp) => {
-      if (Array.isArray(camp.nodes)) {
-        camp.nodes.forEach((node) => {
-          nodes.push({
-            ...node,
-            campaignId: camp.id,
-            campaignName: camp.name,
-            targetSector: camp.target_sector,
-            campaignStatus: camp.status,
-            riskLevel: camp.risk_level,
-            asn: camp.shared_infrastructure?.asn,
-            registrar: camp.shared_infrastructure?.registrar,
-          });
-        });
-      }
-    });
-
-    return nodes;
-  }, [filteredCampaigns]);
-
-  // Filtered nodes table
-  const filteredNodesTable = useMemo(() => {
-    return allAttributedNodes.filter((node) => {
-      if (nodeTypeFilter !== "all" && node.type !== nodeTypeFilter) {
-        return false;
-      }
-      return true;
-    });
-  }, [allAttributedNodes, nodeTypeFilter]);
-
-  // Global counts for KPI cards
+  // Dynamically compute top metrics from the filtered set based strictly on 8 mock cases
   const stats = useMemo(() => {
-    const totalCases = rawCampaignsData.reduce((acc, c) => acc + (c.case_count || 0), 0);
-    const activeCamps = rawCampaignsData.filter((c) => c.status === "active").length;
-    const mitigatedCamps = rawCampaignsData.filter((c) => c.status === "mitigated").length;
+    const totalCampaigns = activeCampaigns.length;
 
-    const uniqueAsns = new Set(rawCampaignsData.map((c) => c.shared_infrastructure?.asn)).size;
-    const totalNodes = rawCampaignsData.reduce((acc, c) => acc + (c.nodes?.length || 0), 0);
+    // Unique cases correlated across all clusters
+    const uniqueCaseIds = new Set();
+    activeCampaigns.forEach((camp) => {
+      camp.cases.forEach((c) => uniqueCaseIds.add(c.id));
+    });
 
-    return { totalCases, activeCamps, mitigatedCamps, uniqueAsns, totalNodes };
-  }, []);
+    // Unique ASNs / threat fabrics mapped
+    const uniqueAsns = new Set(activeCampaigns.map((camp) => camp.asn));
 
-  const hasActiveFilters =
-    statusFilter !== "all" ||
-    riskFilter !== "all" ||
-    sectorFilter !== "all" ||
-    searchQuery.trim() !== "";
+    return {
+      activeCampaignsCount: totalCampaigns,
+      correlatedCasesCount: uniqueCaseIds.size,
+      threatFabricsCount: uniqueAsns.size,
+    };
+  }, [activeCampaigns]);
 
-  const clearFilters = () => {
-    setStatusFilter("all");
-    setRiskFilter("all");
-    setSectorFilter("all");
-    setSearchQuery("");
+  // Aggregate all shared IOCs across active campaigns
+  const allSharedIocs = useMemo(() => {
+    const seen = new Set();
+    const list = [];
+    activeCampaigns.forEach((camp) => {
+      camp.sharedIocs.forEach((ioc) => {
+        const key = `${ioc.type}:${ioc.value}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          list.push({ ...ioc, campaignId: camp.id });
+        }
+      });
+    });
+    return list;
+  }, [activeCampaigns]);
+
+  const handleViewCorrelatedCases = (campaignId) => {
+    router.push(`/cases?campaign=${campaignId}`);
   };
 
   return (
@@ -284,511 +190,309 @@ export default function CampaignsPage() {
             Campaign Intelligence
           </h1>
           <p className="mt-1 text-xs text-dim max-w-2xl">
-            Correlated multi-case email threat campaigns grouped by shared attacker
-            infrastructure, autonomous systems (ASN), IP clusters, and domain registrar footprints.
+            Correlated multi-incident email threat clusters. Displaying only campaigns linking multiple
+            cases across shared infrastructure fabrics, ASNs, and registrar footprints.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
             href="/cases"
-            className="flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-3 py-1.5 text-xs font-medium text-dim hover:border-accent hover:text-ink transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-edge bg-surface px-3 py-1.5 text-xs font-medium text-dim hover:border-accent hover:text-ink transition-colors cursor-pointer"
           >
-            <span>Browse Cases</span>
+            <span>Cases Directory (8 Cases)</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
-          <div className="flex items-center gap-2 rounded-lg border border-edge bg-surface px-3 py-1.5 text-xs">
-            <span className="h-2 w-2 rounded-full bg-risk-green animate-pulse" />
-            <span className="text-dim">C2 Intel Feed:</span>
-            <span className="font-semibold text-ink">Active Sync</span>
-          </div>
         </div>
       </header>
 
-      {/* KPI Metric Cards */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Metric 1 */}
+      {/* Top Dynamic Metrics Grid */}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {/* Metric 1: Active Campaigns */}
         <div className="rounded-xl border border-edge bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-dim">Tracked Campaigns</span>
+            <span className="text-xs font-medium text-dim uppercase tracking-wider">
+              Active Campaigns
+            </span>
             <span className="rounded-md border border-edge bg-canvas/70 p-1.5 text-accent">
               <Layers className="h-4 w-4" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-ink">{rawCampaignsData.length}</span>
-            <span className="text-xs text-dim">campaigns</span>
+            <span className="text-2xl font-bold text-ink">
+              {stats.activeCampaignsCount} Active Campaigns
+            </span>
           </div>
-          <div className="mt-2 flex items-center gap-2 text-[11px] text-dim">
+          <div className="mt-1.5 flex items-center gap-2 text-[11px] text-dim">
             <span className="flex items-center gap-1 text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {stats.activeCamps} Active
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Verified multi-case correlation
             </span>
-            <span>•</span>
-            <span>{stats.mitigatedCamps} Mitigated</span>
           </div>
         </div>
 
-        {/* Metric 2 */}
+        {/* Metric 2: Correlated Cases */}
         <div className="rounded-xl border border-edge bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-dim">Threat Clusters</span>
-            <span className="rounded-md border border-edge bg-canvas/70 p-1.5 text-risk-amber">
-              <Server className="h-4 w-4" />
+            <span className="text-xs font-medium text-dim uppercase tracking-wider">
+              Correlated Cases
             </span>
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-ink">{stats.uniqueAsns}</span>
-            <span className="text-xs text-dim">shared ASN fabrics</span>
-          </div>
-          <div className="mt-2 text-[11px] text-dim">
-            Cross-campaign infrastructure overlap
-          </div>
-        </div>
-
-        {/* Metric 3 */}
-        <div className="rounded-xl border border-edge bg-surface p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-dim">Correlated Cases</span>
             <span className="rounded-md border border-edge bg-canvas/70 p-1.5 text-risk-red">
               <ShieldAlert className="h-4 w-4" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-ink">{stats.totalCases}</span>
-            <span className="text-xs text-dim">incident cases</span>
+            <span className="text-2xl font-bold text-ink">
+              {stats.correlatedCasesCount} Cases Correlated
+            </span>
           </div>
-          <div className="mt-2 text-[11px] text-dim">
-            Linked across enterprise telemetry
+          <div className="mt-1.5 text-[11px] text-dim">
+            {stats.correlatedCasesCount} of 8 investigated scenarios linked across clusters
           </div>
         </div>
 
-        {/* Metric 4 */}
+        {/* Metric 3: Shared Threat Infrastructures */}
         <div className="rounded-xl border border-edge bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-dim">Attributed Graph Nodes</span>
-            <span className="rounded-md border border-edge bg-canvas/70 p-1.5 text-accent">
-              <Network className="h-4 w-4" />
+            <span className="text-xs font-medium text-dim uppercase tracking-wider">
+              Shared Threat Infrastructures
+            </span>
+            <span className="rounded-md border border-edge bg-canvas/70 p-1.5 text-risk-amber">
+              <Server className="h-4 w-4" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-ink">{stats.totalNodes}</span>
-            <span className="text-xs text-dim">indicators mapped</span>
+            <span className="text-2xl font-bold text-ink">
+              {stats.threatFabricsCount} Threat Fabrics
+            </span>
           </div>
-          <div className="mt-2 text-[11px] text-dim">
-            IPs, Domains, Senders & Payload Artifacts
+          <div className="mt-1.5 text-[11px] font-mono text-dim">
+            AS61754 &bull; AS20262
           </div>
         </div>
       </div>
 
-      {/* Interactive Controls & Filters */}
-      <div className="mb-8 rounded-xl border border-edge bg-surface p-4 shadow-sm space-y-4">
-        {/* Top Controls Row */}
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-dim" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search campaigns, ASN, C2 IP, domain, registrar, or indicator label..."
-              className="w-full rounded-lg border border-edge bg-canvas py-2 pl-9 pr-8 text-xs text-ink placeholder:text-dim/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-dim hover:text-ink transition-colors"
-                title="Clear search"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Segmented Status Toggle */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-edge bg-canvas/70 p-1">
-            <span className="px-2 text-[11px] font-semibold text-dim uppercase tracking-wider">
-              Status:
-            </span>
+      {/* Sleek Single-Row Search & Filter Bar */}
+      <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-xl border border-edge bg-surface p-3 shadow-sm">
+        {/* Live Search Input */}
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-dim" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search campaign names, ASNs (e.g. AS61754), registrars, or case titles..."
+            className="w-full rounded-lg border border-edge bg-canvas py-1.5 pl-9 pr-8 text-xs text-ink placeholder:text-dim/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
+          />
+          {searchQuery && (
             <button
               type="button"
-              onClick={() => setStatusFilter("all")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
-                statusFilter === "all"
-                  ? "bg-surface text-ink border border-edge shadow-xs"
-                  : "text-dim hover:text-ink"
-              }`}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-dim hover:text-ink transition-colors cursor-pointer"
+              title="Clear search"
             >
-              All ({rawCampaignsData.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("active")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all flex items-center gap-1.5 ${
-                statusFilter === "active"
-                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-xs"
-                  : "text-dim hover:text-ink"
-              }`}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Active ({stats.activeCamps})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("mitigated")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
-                statusFilter === "mitigated"
-                  ? "bg-surface text-dim border border-edge shadow-xs"
-                  : "text-dim hover:text-ink"
-              }`}
-            >
-              Mitigated ({stats.mitigatedCamps})
-            </button>
-          </div>
-
-          {/* Risk Level Segmented Toggle */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-edge bg-canvas/70 p-1">
-            <span className="px-2 text-[11px] font-semibold text-dim uppercase tracking-wider">
-              Risk:
-            </span>
-            <button
-              type="button"
-              onClick={() => setRiskFilter("all")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
-                riskFilter === "all"
-                  ? "bg-surface text-ink border border-edge shadow-xs"
-                  : "text-dim hover:text-ink"
-              }`}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              onClick={() => setRiskFilter("critical")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all flex items-center gap-1 ${
-                riskFilter === "critical"
-                  ? "bg-risk-red/15 text-risk-red border border-risk-red/30 shadow-xs"
-                  : "text-dim hover:text-risk-red"
-              }`}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-risk-red" />
-              Critical
-            </button>
-            <button
-              type="button"
-              onClick={() => setRiskFilter("high")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all flex items-center gap-1 ${
-                riskFilter === "high"
-                  ? "bg-risk-amber/15 text-risk-amber border border-risk-amber/30 shadow-xs"
-                  : "text-dim hover:text-risk-amber"
-              }`}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-risk-amber" />
-              High
-            </button>
-            <button
-              type="button"
-              onClick={() => setRiskFilter("medium")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all flex items-center gap-1 ${
-                riskFilter === "medium"
-                  ? "bg-risk-green/15 text-risk-green border border-risk-green/30 shadow-xs"
-                  : "text-dim hover:text-risk-green"
-              }`}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-risk-green" />
-              Medium
-            </button>
-          </div>
-        </div>
-
-        {/* Sector Quick Pills & Clear Button */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-edge/60">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-dim mr-1 flex items-center gap-1">
-              <Building2 className="h-3.5 w-3.5" />
-              <span>Target Sector:</span>
-            </span>
-            <button
-              type="button"
-              onClick={() => setSectorFilter("all")}
-              className={`rounded-lg border px-2.5 py-1 text-xs font-medium transition-all ${
-                sectorFilter === "all"
-                  ? "border-accent bg-accent/15 text-accent"
-                  : "border-edge bg-canvas/60 text-dim hover:border-edge/80 hover:text-ink"
-              }`}
-            >
-              All Sectors
-            </button>
-            {sectors.map((sec) => (
-              <button
-                key={sec}
-                type="button"
-                onClick={() => setSectorFilter(sec)}
-                className={`rounded-lg border px-2.5 py-1 text-xs font-medium transition-all ${
-                  sectorFilter === sec
-                    ? "border-accent bg-accent/15 text-accent"
-                    : "border-edge bg-canvas/60 text-dim hover:border-edge/80 hover:text-ink"
-                }`}
-              >
-                {sec}
-              </button>
-            ))}
-          </div>
-
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="flex items-center gap-1 text-xs text-accent hover:underline transition-colors"
-            >
-              <X className="h-3 w-3" />
-              <span>Reset all filters</span>
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
+
+        {/* Clean Status Filter Pills */}
+        <div className="flex items-center gap-1 shrink-0 rounded-lg border border-edge bg-canvas/70 p-1">
+          <span className="px-2 text-[10px] font-semibold uppercase tracking-wider text-dim">
+            Status:
+          </span>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+              statusFilter === "all"
+                ? "bg-surface text-ink border border-edge shadow-xs"
+                : "text-dim hover:text-ink"
+            }`}
+          >
+            All ({activeCampaigns.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("active")}
+            className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+              statusFilter === "active"
+                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                : "text-dim hover:text-emerald-400"
+            }`}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Active ({activeCampaigns.filter((c) => c.status === "active").length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("mitigated")}
+            className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+              statusFilter === "mitigated"
+                ? "bg-surface text-ink border border-edge shadow-xs"
+                : "text-dim hover:text-ink"
+            }`}
+          >
+            Mitigated ({activeCampaigns.filter((c) => c.status === "mitigated").length})
+          </button>
+        </div>
       </div>
 
-      {/* SECTION 1: Threat-Cluster View */}
+      {/* Flattened Campaign Cards Grid (2-column layout) */}
       <section className="mb-10">
-        <div className="mb-4 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/15 text-[11px] font-bold text-accent">
-                1
-              </span>
-              <h2 className="text-lg font-bold text-ink tracking-tight">
-                Infrastructure Threat Clusters
-              </h2>
-            </div>
-            <p className="mt-0.5 text-xs text-dim">
-              Campaigns grouped by common attacker infrastructure: autonomous network (ASN),
-              shared IP subnets, and domain registrar footprint.
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-dim">
+              Correlated Threat Campaigns
+            </h2>
+            <p className="text-xs text-dim mt-0.5">
+              Multi-incident threat clusters grouped by common ASN, shared registrar, and infrastructure nexus.
             </p>
           </div>
-          <div className="text-xs text-dim">
-            Showing <strong className="text-ink">{filteredCampaigns.length}</strong> campaigns across{" "}
-            <strong className="text-ink">{clusters.length}</strong> infrastructure clusters
-          </div>
+          <span className="text-xs text-dim">
+            Showing <strong className="text-ink">{filteredCampaigns.length}</strong> of{" "}
+            <strong className="text-ink">{activeCampaigns.length}</strong> active campaigns
+          </span>
         </div>
 
-        {clusters.length === 0 ? (
-          <div className="rounded-xl border border-edge bg-surface p-12 text-center text-dim">
-            <ShieldAlert className="mx-auto h-8 w-8 text-dim/50" />
-            <p className="mt-2 text-sm font-medium text-ink">No matching threat clusters found</p>
-            <p className="mt-1 text-xs text-dim">
-              Try adjusting your active filters or clear your search term.
-            </p>
+        {filteredCampaigns.length === 0 ? (
+          <div className="rounded-xl border border-edge bg-surface p-10 text-center text-dim">
+            <ShieldAlert className="mx-auto h-7 w-7 text-dim/50 mb-2" />
+            <p className="text-sm font-semibold text-ink">No matching threat campaigns</p>
+            <p className="text-xs text-dim mt-1">Try adjusting your search terms or status filter.</p>
             <button
               type="button"
-              onClick={clearFilters}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-xs font-medium text-accent hover:border-accent transition-colors"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+              }}
+              className="mt-3 inline-flex items-center gap-1 rounded-md border border-edge bg-canvas px-2.5 py-1 text-xs text-accent hover:border-accent cursor-pointer"
             >
               Reset Filters
             </button>
           </div>
         ) : (
-          <div className="space-y-6">
-            {clusters.map((cluster) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredCampaigns.map((camp) => (
               <div
-                key={cluster.asn}
-                className="overflow-hidden rounded-xl border border-edge bg-surface shadow-sm transition-all hover:border-edge/90"
+                key={camp.id}
+                className="rounded-xl border border-edge bg-surface p-5 sm:p-6 shadow-sm hover:border-accent/60 transition-all flex flex-col justify-between"
               >
-                {/* Cluster Header Bar */}
-                <div className="border-b border-edge bg-canvas/70 px-5 py-3.5">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-accent">
-                        <Server className="h-5 w-5" />
+                <div>
+                  {/* Card Header: Campaign Title, ID & Risk Badge */}
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-accent bg-accent/15 border border-accent/30 rounded px-2 py-0.5">
+                          {camp.id}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Active Threat
+                        </span>
                       </div>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-sm font-bold text-ink">
-                            {cluster.asn}
-                          </span>
-                          <span className="text-xs text-dim">•</span>
-                          <span className="text-xs font-medium text-ink">
-                            {cluster.asnName}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3 mt-0.5 text-xs text-dim">
-                          <span>
-                            Registrar:{" "}
-                            <strong className="text-ink font-normal">{cluster.registrar}</strong>
-                          </span>
-                          <span>•</span>
-                          <span>
-                            Shared Subnet IPs:{" "}
-                            <span className="font-mono text-[11px] text-accent">
-                              {cluster.ipPool.join(", ")}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
+                      <h3 className="text-base font-bold text-ink tracking-tight mt-1.5">
+                        {camp.title}
+                      </h3>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="rounded-md border border-edge bg-surface px-2.5 py-1 text-xs font-semibold text-ink">
-                        {cluster.campaigns.length}{" "}
-                        {cluster.campaigns.length === 1 ? "Campaign" : "Campaigns"}
+                    <span className="shrink-0 font-mono text-xs font-bold uppercase tracking-wider text-risk-red bg-risk-red/15 border border-risk-red/30 rounded-md px-2.5 py-1">
+                      {camp.riskLevel} // {camp.riskScore}+
+                    </span>
+                  </div>
+
+                  {/* Infrastructure Footprint (Monospace Pills) */}
+                  <div className="mb-5 rounded-lg border border-edge/80 bg-canvas/70 p-3 space-y-2">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-dim">
+                      Infrastructure Footprint
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-accent bg-surface px-2.5 py-1 rounded border border-edge">
+                        <Server className="h-3 w-3 text-accent" />
+                        <span>{camp.asn}</span>
                       </span>
-                      <Link
-                        href={`/cases?campaign=${cluster.id}`}
-                        className="rounded-md border border-edge bg-surface px-2.5 py-1 text-xs font-semibold text-accent hover:border-accent hover:bg-accent/10 transition-all flex items-center gap-1"
-                      >
-                        <span>{cluster.totalCases} Associated Cases</span>
-                        <ArrowUpRight className="h-3 w-3" />
-                      </Link>
+                      <span className="inline-flex items-center gap-1.5 font-mono text-xs text-ink bg-surface px-2.5 py-1 rounded border border-edge">
+                        <Globe className="h-3 w-3 text-risk-amber" />
+                        <span className="truncate max-w-[200px]">{camp.registrar}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 font-mono text-xs text-dim bg-surface px-2.5 py-1 rounded border border-edge">
+                        <Network className="h-3 w-3 text-dim" />
+                        <span>{camp.subnet}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Linked Cases List */}
+                  <div className="mb-6 space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-dim font-semibold uppercase tracking-wider">
+                        Linked Cases ({camp.cases.length}):
+                      </span>
+                      <span className="font-mono text-[10px] text-dim">
+                        {camp.cases.map((c) => c.id).join(" • ")}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      {camp.cases.map((c) => {
+                        const caseClass = c.data?.classification || "phishing";
+
+                        return (
+                          <div
+                            key={c.id}
+                            className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-edge bg-canvas/50 hover:border-accent/40 transition-colors"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="font-mono text-xs font-bold text-accent shrink-0">
+                                [{c.id}]
+                              </span>
+                              <span className="text-xs font-medium text-ink truncate">
+                                {c.name}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span
+                                className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase ${getClassificationBadgeClasses(
+                                  caseClass
+                                )}`}
+                              >
+                                {caseClass.replace("_", " ")}
+                              </span>
+                              <Link
+                                href={`/?case=${c.slug}&campaign=${camp.id}`}
+                                className="text-dim hover:text-accent transition-colors p-1"
+                                title="Investigate in Dashboard"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Link>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
 
-                {/* Inner Campaign Cards Grid */}
-                <div className="p-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {cluster.campaigns.map((camp) => {
-                    const risk = getRiskBadge(camp.risk_level);
-                    const status = getStatusBadge(camp.status);
-                    const isExpanded = expandedCampaigns[camp.id];
+                {/* Dual Action Buttons: View Infrastructure Map & View Correlated Cases */}
+                <div className="pt-4 border-t border-edge/60 flex flex-col sm:flex-row items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMapCampaign(camp)}
+                    className="w-full sm:w-1/2 flex items-center justify-center gap-1.5 rounded-lg border border-edge bg-canvas/80 hover:border-accent hover:text-accent py-2 px-3 text-xs font-semibold text-dim transition-all cursor-pointer shadow-xs"
+                  >
+                    <Globe className="h-3.5 w-3.5 text-accent" />
+                    <span>View Infrastructure Map</span>
+                  </button>
 
-                    return (
-                      <div
-                        key={camp.id}
-                        className="rounded-lg border border-edge/80 bg-canvas/40 p-4 transition-all hover:border-accent/40 hover:bg-canvas/60 flex flex-col justify-between"
-                      >
-                        <div>
-                          {/* Card Header */}
-                          <div className="flex items-start justify-between gap-2 mb-2.5">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-ink tracking-tight">
-                                  {camp.name}
-                                </h3>
-                              </div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="font-mono text-[10px] text-dim uppercase">
-                                  {camp.id}
-                                </span>
-                                <span className="text-dim">•</span>
-                                <span className="inline-flex items-center gap-1 rounded bg-surface px-2 py-0.5 text-[10px] font-semibold text-dim border border-edge">
-                                  <Building2 className="h-3 w-3 text-accent" />
-                                  {camp.target_sector}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Status & Risk Badges */}
-                            <div className="flex flex-col items-end gap-1 shrink-0">
-                              <span
-                                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${status.classes}`}
-                              >
-                                <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                                {status.label}
-                              </span>
-                              <span
-                                className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${risk.classes}`}
-                              >
-                                {risk.label} Risk
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Stats & Timeline */}
-                          <div className="grid grid-cols-2 gap-2 my-3 rounded-md border border-edge/60 bg-surface/60 p-2.5 text-xs">
-                            <div>
-                              <div className="text-[10px] text-dim uppercase tracking-wider">
-                                Linked Cases
-                              </div>
-                              <div className="mt-0.5 font-bold text-ink">
-                                {camp.case_count} Cases
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-[10px] text-dim uppercase tracking-wider">
-                                Timeline Window
-                              </div>
-                              <div className="mt-0.5 font-mono text-[11px] text-dim flex items-center gap-1">
-                                <Calendar className="h-3 w-3 text-dim/70" />
-                                <span>{camp.first_seen} → {camp.last_seen}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Shared Attribution Signals */}
-                          <div className="text-[11px] text-dim space-y-1 mb-3">
-                            <div className="flex items-center justify-between">
-                              <span className="text-dim/80">Cluster IP Subnet:</span>
-                              <span className="font-mono text-[11px] text-ink">
-                                {camp.shared_infrastructure?.ip_cluster?.join(", ")}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-dim/80">Registrar Anchor:</span>
-                              <span className="text-ink">
-                                {camp.shared_infrastructure?.registrar}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Card Bottom / Expandable Nodes */}
-                        <div className="pt-2 border-t border-edge/60">
-                          <div className="flex items-center justify-between">
-                            <button
-                              type="button"
-                              onClick={() => toggleCampaignExpansion(camp.id)}
-                              className="flex items-center gap-1 text-[11px] font-medium text-accent hover:underline transition-colors"
-                            >
-                              <span>{isExpanded ? "Hide" : "Inspect"} Attributed Nodes ({camp.nodes?.length || 0})</span>
-                              {isExpanded ? (
-                                <ChevronUp className="h-3.5 w-3.5" />
-                              ) : (
-                                <ChevronDown className="h-3.5 w-3.5" />
-                              )}
-                            </button>
-
-                            <Link
-                              href={`/cases?campaign=${cluster.id}`}
-                              className="inline-flex items-center gap-1 text-[11px] text-accent hover:text-ink transition-colors font-medium"
-                            >
-                              <span>View Cases</span>
-                              <ArrowUpRight className="h-3 w-3" />
-                            </Link>
-                          </div>
-
-                          {/* Expanded Nodes List */}
-                          {isExpanded && (
-                            <div className="mt-3 space-y-1.5 rounded-lg border border-edge bg-surface/80 p-2.5 text-xs animate-in fade-in duration-150">
-                              <div className="text-[10px] uppercase font-semibold text-dim tracking-wider mb-1">
-                                Attributed Graph Nodes
-                              </div>
-                              {camp.nodes?.map((node) => {
-                                const typeBadge = getNodeTypeBadge(node.type);
-                                return (
-                                  <div
-                                    key={node.id}
-                                    className="flex items-center justify-between gap-2 py-1 px-1.5 rounded bg-canvas/50 border border-edge/50"
-                                  >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      {getNodeTypeIcon(node.type)}
-                                      <span className="font-mono text-[11px] text-ink truncate">
-                                        {node.label}
-                                      </span>
-                                    </div>
-                                    <span
-                                      className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase ${typeBadge.classes}`}
-                                    >
-                                      {typeBadge.label}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <button
+                    type="button"
+                    onClick={() => handleViewCorrelatedCases(camp.id)}
+                    className="w-full sm:w-1/2 flex items-center justify-center gap-1.5 rounded-lg bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 py-2 px-3 text-xs font-semibold transition-all cursor-pointer shadow-xs hover:border-accent"
+                  >
+                    <span>View Correlated Cases ({camp.cases.length})</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             ))}
@@ -796,219 +500,190 @@ export default function CampaignsPage() {
         )}
       </section>
 
-      {/* SECTION 2: Graph-Based Node Overview Table */}
-      <section>
-        <div className="mb-4 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+      {/* Compact 2-Column Footer Section */}
+      <section className="rounded-xl border border-edge bg-surface p-6 shadow-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column: Active Shared Indicators (IOCs) Tag Cloud */}
           <div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/15 text-[11px] font-bold text-accent">
-                2
-              </span>
-              <h2 className="text-lg font-bold text-ink tracking-tight">
-                Graph-Based Node Overview Table
-              </h2>
+            <div className="flex items-center gap-2 mb-1">
+              <Network className="h-4 w-4 text-accent" />
+              <h3 className="text-sm font-bold text-ink tracking-tight">
+                Active Shared Indicators (IOCs)
+              </h3>
             </div>
-            <p className="mt-0.5 text-xs text-dim">
-              Flat tabular scan of every attributed graph node across active campaigns for raw
-              attribution analysis and SOC pivoting.
+            <p className="text-xs text-dim mb-4">
+              Shared originating IPs, sending endpoints, and lookalike domains identified across active campaigns.
             </p>
-          </div>
 
-          {/* Node Type Segmented Filter */}
-          <div className="flex items-center gap-1 rounded-lg border border-edge bg-surface p-1 text-xs">
-            <span className="px-2 text-[10px] font-semibold uppercase tracking-wider text-dim">
-              Filter Nodes:
-            </span>
-            <button
-              type="button"
-              onClick={() => setNodeTypeFilter("all")}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium transition-all ${
-                nodeTypeFilter === "all"
-                  ? "bg-canvas text-ink border border-edge"
-                  : "text-dim hover:text-ink"
-              }`}
-            >
-              All ({allAttributedNodes.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setNodeTypeFilter("ip")}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium transition-all ${
-                nodeTypeFilter === "ip"
-                  ? "bg-accent/20 text-accent border border-accent/40"
-                  : "text-dim hover:text-accent"
-              }`}
-            >
-              IPs
-            </button>
-            <button
-              type="button"
-              onClick={() => setNodeTypeFilter("domain")}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium transition-all ${
-                nodeTypeFilter === "domain"
-                  ? "bg-risk-amber/20 text-risk-amber border border-risk-amber/40"
-                  : "text-dim hover:text-risk-amber"
-              }`}
-            >
-              Domains
-            </button>
-            <button
-              type="button"
-              onClick={() => setNodeTypeFilter("email")}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium transition-all ${
-                nodeTypeFilter === "email"
-                  ? "bg-risk-red/20 text-risk-red border border-risk-red/40"
-                  : "text-dim hover:text-risk-red"
-              }`}
-            >
-              Emails
-            </button>
-            <button
-              type="button"
-              onClick={() => setNodeTypeFilter("ioc")}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium transition-all ${
-                nodeTypeFilter === "ioc"
-                  ? "bg-risk-green/20 text-risk-green border border-risk-green/40"
-                  : "text-dim hover:text-risk-green"
-              }`}
-            >
-              Artifacts
-            </button>
-          </div>
-        </div>
+            <div className="flex flex-wrap gap-2">
+              {allSharedIocs.map((ioc) => {
+                let badgeClass = "border-edge bg-canvas/80 text-dim";
+                let icon = <Network className="h-3 w-3 text-accent" />;
 
-        {/* Node Overview Table Card */}
-        <div className="overflow-hidden rounded-xl border border-edge bg-surface shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-xs">
-              <thead>
-                <tr className="border-b border-edge bg-canvas/70 text-[11px] font-semibold uppercase tracking-wider text-dim">
-                  <th className="px-4 py-3">Node Indicator</th>
-                  <th className="px-4 py-3">Type</th>
-                  <th className="px-4 py-3">Attributed Campaign</th>
-                  <th className="px-4 py-3">Target Sector</th>
-                  <th className="px-4 py-3">Campaign Status</th>
-                  <th className="px-4 py-3">Infrastructure ASN</th>
-                  <th className="px-4 py-3 text-right">Registrar</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-edge/60">
-                {filteredNodesTable.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-10 text-center text-dim">
-                      <Network className="mx-auto h-7 w-7 text-dim/40 mb-1" />
-                      <p className="text-xs text-ink font-medium">No nodes match the active filters</p>
-                      <p className="text-[11px] text-dim mt-0.5">Try resetting the node type filter</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredNodesTable.map((node) => {
-                    const typeBadge = getNodeTypeBadge(node.type);
-                    const statusBadge = getStatusBadge(node.campaignStatus);
+                if (ioc.type === "ip") {
+                  badgeClass = "border-accent/30 bg-accent/10 text-accent font-mono";
+                  icon = <Network className="h-3 w-3 text-accent" />;
+                } else if (ioc.type === "typosquat") {
+                  badgeClass = "border-risk-red/30 bg-risk-red/10 text-risk-red font-mono";
+                  icon = <ShieldAlert className="h-3 w-3 text-risk-red" />;
+                } else {
+                  badgeClass = "border-risk-amber/30 bg-risk-amber/10 text-risk-amber font-mono";
+                  icon = <Globe className="h-3 w-3 text-risk-amber" />;
+                }
 
-                    return (
-                      <tr
-                        key={`${node.campaignId}-${node.id}`}
-                        className="group hover:bg-canvas/50 transition-colors"
-                      >
-                        {/* Indicator Label & ID */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2.5">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-edge bg-canvas">
-                              {getNodeTypeIcon(node.type)}
-                            </span>
-                            <div className="min-w-0">
-                              <span className="block font-mono text-xs font-semibold text-ink truncate group-hover:text-accent transition-colors">
-                                {node.label}
-                              </span>
-                              <span className="font-mono text-[10px] text-dim/80">
-                                {node.id}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Node Type */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${typeBadge.classes}`}
-                          >
-                            {typeBadge.label}
-                          </span>
-                        </td>
-
-                        {/* Origin Campaign */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="text-xs font-medium text-ink">
-                            {node.campaignName}
-                          </div>
-                          <div className="font-mono text-[10px] text-dim">
-                            {node.campaignId}
-                          </div>
-                        </td>
-
-                        {/* Target Sector */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 rounded bg-canvas/60 px-2 py-0.5 text-[11px] font-medium text-dim border border-edge">
-                            <Building2 className="h-3 w-3 text-accent" />
-                            {node.targetSector}
-                          </span>
-                        </td>
-
-                        {/* Status */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusBadge.classes}`}
-                          >
-                            <span className={`h-1.5 w-1.5 rounded-full ${statusBadge.dot}`} />
-                            {statusBadge.label}
-                          </span>
-                        </td>
-
-                        {/* Infrastructure ASN */}
-                        <td className="px-4 py-3 whitespace-nowrap font-mono text-xs text-accent">
-                          {node.asn || "—"}
-                        </td>
-
-                        {/* Registrar */}
-                        <td className="px-4 py-3 whitespace-nowrap text-right text-xs text-dim">
-                          {node.registrar || "—"}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Table Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-edge bg-canvas/50 px-4 py-3 text-xs text-dim gap-2">
-            <div>
-              Showing <strong className="text-ink">{filteredNodesTable.length}</strong> of{" "}
-              <strong className="text-ink">{allAttributedNodes.length}</strong> total attributed nodes
+                return (
+                  <span
+                    key={`${ioc.campaignId}-${ioc.type}-${ioc.value}`}
+                    className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium ${badgeClass}`}
+                  >
+                    {icon}
+                    <span>{ioc.value}</span>
+                  </span>
+                );
+              })}
             </div>
-            <div className="flex items-center gap-3 text-[11px]">
-              <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-accent" />
-                <span>IPs</span>
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-risk-amber" />
-                <span>Domains</span>
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-risk-red" />
-                <span>Emails</span>
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-risk-green" />
-                <span>Artifacts</span>
-              </span>
+          </div>
+
+          {/* Right Column: Correlation Matrix Summary */}
+          <div className="lg:border-l lg:border-edge/60 lg:pl-8 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <CheckCircle2 className="h-4 w-4 text-risk-green" />
+                <h3 className="text-sm font-bold text-ink tracking-tight">
+                  Correlation Matrix Summary
+                </h3>
+              </div>
+              <p className="text-xs text-dim mb-4">
+                Automated multi-incident correlation verdict based on telemetry clustering.
+              </p>
+
+              <div className="space-y-3">
+                {activeCampaigns.map((camp) => (
+                  <div
+                    key={camp.id}
+                    className="rounded-lg border border-edge bg-canvas/50 p-3 text-xs leading-relaxed"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-[10px] font-bold text-accent uppercase">
+                        {camp.id} Verdict
+                      </span>
+                      <span className="text-edge">•</span>
+                      <span className="font-mono text-[10px] text-dim">
+                        {camp.asn}
+                      </span>
+                    </div>
+                    <p className="text-ink/90 font-sans">{camp.verdict}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-edge/60 flex items-center justify-between text-[11px] text-dim">
+              <span>RFC-5322 Telemetry &bull; MaxMind GeoIP Verified</span>
+              <span className="font-mono text-accent">Confidence: HIGH (0.94)</span>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Threat Infrastructure Map Modal */}
+      {selectedMapCampaign && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="relative w-full max-w-2xl rounded-xl border border-edge bg-surface p-6 shadow-2xl space-y-5">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-edge/60 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-accent bg-accent/15 border border-accent/30 rounded px-2 py-0.5">
+                    {selectedMapCampaign.id}
+                  </span>
+                  <span className="text-xs text-dim font-mono">
+                    {selectedMapCampaign.asn} &bull; {selectedMapCampaign.subnet}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-ink tracking-tight mt-1">
+                  {selectedMapCampaign.title}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedMapCampaign(null)}
+                className="rounded-lg border border-edge bg-canvas p-1.5 text-dim hover:text-ink hover:border-accent transition-colors cursor-pointer"
+                title="Close modal"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Infrastructure Overview Banner */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+              <div className="rounded-lg border border-edge bg-canvas/70 p-3">
+                <div className="text-[10px] uppercase font-semibold text-dim">Autonomous System</div>
+                <div className="mt-1 font-mono font-bold text-accent">{selectedMapCampaign.asn}</div>
+                <div className="text-[11px] text-dim truncate">{selectedMapCampaign.asnName}</div>
+              </div>
+              <div className="rounded-lg border border-edge bg-canvas/70 p-3">
+                <div className="text-[10px] uppercase font-semibold text-dim">Registrar Anchor</div>
+                <div className="mt-1 font-medium text-ink truncate">{selectedMapCampaign.registrar}</div>
+                <div className="text-[11px] text-dim">Privacy Protected</div>
+              </div>
+              <div className="rounded-lg border border-edge bg-canvas/70 p-3">
+                <div className="text-[10px] uppercase font-semibold text-dim">Origin Subnet</div>
+                <div className="mt-1 font-mono text-dim">{selectedMapCampaign.subnet}</div>
+                <div className="text-[11px] text-risk-red font-mono">C2 Endpoint Flagged</div>
+              </div>
+            </div>
+
+            {/* Hop-by-Hop Telemetry Routing Path */}
+            <div className="space-y-2">
+              <div className="text-xs font-semibold uppercase tracking-wider text-dim flex items-center justify-between">
+                <span>Verified Telemetry Routing Hops</span>
+                <span className="text-[10px] font-mono text-accent">RFC-5322 Trace</span>
+              </div>
+              <div className="space-y-2 rounded-lg border border-edge bg-canvas/50 p-3">
+                {selectedMapCampaign.routingTelemetry?.map((hop) => (
+                  <div
+                    key={hop.hop}
+                    className="flex items-center justify-between text-xs py-1 border-b border-edge/40 last:border-0"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-accent font-mono text-[10px] font-bold">
+                        {hop.hop}
+                      </span>
+                      <div>
+                        <div className="font-mono text-ink font-semibold">{hop.ip}</div>
+                        <div className="text-[11px] text-dim">{hop.note}</div>
+                      </div>
+                    </div>
+                    <span className="text-dim font-mono text-[11px] text-right">
+                      {hop.location}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-edge/60">
+              <button
+                type="button"
+                onClick={() => setSelectedMapCampaign(null)}
+                className="rounded-lg border border-edge bg-canvas px-3.5 py-1.5 text-xs text-dim hover:text-ink transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+
+              <Link
+                href={`/?case=${selectedMapCampaign.cases[0].slug}&campaign=${selectedMapCampaign.id}#routing-correlation`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent border border-accent/40 px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer"
+              >
+                <span>Open Full Interactive Map in Dashboard</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

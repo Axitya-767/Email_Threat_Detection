@@ -242,6 +242,25 @@ function CasesTableContent() {
         </div>
       </header>
 
+      {/* Active Campaign Filter Banner */}
+      {campaignParam && (
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-xs text-accent shadow-sm">
+          <div className="flex items-center gap-2">
+            <Layers className="h-4 w-4 shrink-0" />
+            <span>
+              Filtering by campaign cluster: <strong>{campaignParam}</strong> ({filteredCases.length} correlated cases)
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/cases")}
+            className="rounded-md border border-accent/30 bg-surface px-2.5 py-1 text-[11px] font-semibold text-accent hover:border-accent hover:text-ink transition-colors cursor-pointer"
+          >
+            Clear Filter (Show All 8 Cases)
+          </button>
+        </div>
+      )}
+
       {/* Search & Filter Toolbar */}
       <div className="mb-6 flex flex-col gap-3 rounded-xl border border-edge bg-surface p-4 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
