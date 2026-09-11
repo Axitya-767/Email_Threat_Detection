@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X, ShieldAlert, ChevronRight, FileText, Filter } from "lucide-react";
+import { Search, X, ShieldAlert, ChevronRight, FileText, Filter, Layers} from "lucide-react";
 import {
   CASES_LIST,
   CATEGORIES,
