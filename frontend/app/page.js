@@ -11,6 +11,7 @@ import {
   FileCheck,
   Shield,
   Clock,
+  Layers,
 } from "lucide-react";
 import AuthStatusCard from "../components/AuthStatusCard";
 import DomainIntelCard from "../components/DomainIntelCard";
@@ -54,6 +55,7 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const caseParam = searchParams.get("case");
+  const campaignParam = searchParams.get("campaign");
   const isAuthenticated = useSyncExternalStore(
     subscribe,
     getAuthSnapshot,
@@ -256,6 +258,29 @@ function DashboardContent() {
         ═════════════════════════════════════════════════════════════
       */}
       <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
+        {/* Campaign Banner if navigated from /campaigns */}
+        {campaignParam && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-xs text-accent shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-accent">
+                <Layers className="h-4 w-4" />
+              </span>
+              <span>
+                <strong>Part of a 2-case campaign:</strong> Shared infrastructure detected with{" "}
+                {activeCaseMeta.id === "CASE-001" ? "CASE-004 (ITD Refund Spoof)" : "CASE-001 (SBI KYC Scam)"}{" "}
+                (Origin IP 185.220.101.5) — see Routing &amp; Correlation for full info.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => scrollToSection("routing-correlation")}
+              className="shrink-0 rounded-md border border-accent/30 bg-surface px-3 py-1.5 text-[11px] font-semibold text-accent hover:border-accent hover:text-ink transition-colors cursor-pointer"
+            >
+              View in Routing &amp; Correlation &rarr;
+            </button>
+          </div>
+        )}
+
         {/* Overview */}
         <section id="overview" className="scroll-mt-[168px]">
           <h2 className="text-base font-semibold text-ink tracking-tight mb-3">Overview</h2>

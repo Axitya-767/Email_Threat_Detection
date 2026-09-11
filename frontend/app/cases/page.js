@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { Search, X, ShieldAlert, ChevronRight, FileText, Filter } from "lucide-react";
+import { useState, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Search, X, ShieldAlert, ChevronRight, FileText, Filter, Layers } from "lucide-react";
 import {
   CASES_LIST,
   CATEGORIES,
@@ -10,8 +10,17 @@ import {
   getClassificationBadgeClasses,
 } from "../../lib/cases";
 
-export default function CasesPage() {
+const CAMPAIGN_CASE_MAP = {
+  "CAMP-01": ["CASE-001", "CASE-004"],
+  "AS61754": ["CASE-001", "CASE-004"],
+  "CAMP-02": ["CASE-002", "CASE-005"],
+  "AS20262": ["CASE-002", "CASE-005"],
+};
+
+function CasesContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const campaignParam = searchParams.get("campaign");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
 
@@ -27,7 +36,13 @@ export default function CasesPage() {
 
   const filteredCases = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
+    const campaignCaseIds = campaignParam ? CAMPAIGN_CASE_MAP[campaignParam] : null;
+
     return CASES_LIST.filter((item) => {
+      // Campaign filter if present
+      if (campaignCaseIds && !campaignCaseIds.includes(item.id)) {
+        return false;
+      }
       // Category filter
       if (activeCategory !== "all" && item.category !== activeCategory) {
         return false;
@@ -54,7 +69,7 @@ export default function CasesPage() {
       }
       return true;
     });
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, campaignParam]);
 
   function handleSelectCase(slug) {
     router.push(`/?case=${slug}`);
@@ -83,6 +98,25 @@ export default function CasesPage() {
           </div>
         </div>
       </header>
+
+      {/* Active Campaign Filter Banner */}
+      {campaignParam && (
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-xs text-accent shadow-sm">
+          <div className="flex items-center gap-2">
+            <Layers className="h-4 w-4 shrink-0" />
+            <span>
+              Filtering by campaign cluster: <strong>{campaignParam}</strong> ({filteredCases.length} correlated cases)
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/cases")}
+            className="rounded-md border border-accent/30 bg-surface px-2.5 py-1 text-[11px] font-semibold text-accent hover:border-accent hover:text-ink transition-colors cursor-pointer"
+          >
+            Clear Filter (Show All 8 Cases)
+          </button>
+        </div>
+      )}
 
       {/* Search & Filter Toolbar */}
       <div className="mb-6 flex flex-col gap-3 rounded-xl border border-edge bg-surface p-4 shadow-sm">
@@ -279,3 +313,12 @@ export default function CasesPage() {
     </div>
   );
 }
+
+export default function CasesPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-xs text-dim">Loading cases directory...</div>}>
+      <CasesContent />
+    </Suspense>
+  );
+}
+
