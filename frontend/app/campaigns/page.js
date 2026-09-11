@@ -206,6 +206,7 @@ export default function CampaignsPage() {
 
     return Object.values(clusterMap).map((c) => ({
       ...c,
+      id: c.asn,
       ipPool: Array.from(c.ipPool),
       totalCases: c.campaigns.reduce((acc, curr) => acc + (curr.case_count || 0), 0),
     }));
@@ -632,9 +633,13 @@ export default function CampaignsPage() {
                         {cluster.campaigns.length}{" "}
                         {cluster.campaigns.length === 1 ? "Campaign" : "Campaigns"}
                       </span>
-                      <span className="rounded-md border border-edge bg-surface px-2.5 py-1 text-xs font-semibold text-accent">
-                        {cluster.totalCases} Associated Cases
-                      </span>
+                      <Link
+                        href={`/cases?campaign=${cluster.id}`}
+                        className="rounded-md border border-edge bg-surface px-2.5 py-1 text-xs font-semibold text-accent hover:border-accent hover:bg-accent/10 transition-all flex items-center gap-1"
+                      >
+                        <span>{cluster.totalCases} Associated Cases</span>
+                        <ArrowUpRight className="h-3 w-3" />
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -743,8 +748,8 @@ export default function CampaignsPage() {
                             </button>
 
                             <Link
-                              href="/cases"
-                              className="inline-flex items-center gap-1 text-[11px] text-dim hover:text-ink transition-colors"
+                              href={`/cases?campaign=${cluster.id}`}
+                              className="inline-flex items-center gap-1 text-[11px] text-accent hover:text-ink transition-colors font-medium"
                             >
                               <span>View Cases</span>
                               <ArrowUpRight className="h-3 w-3" />

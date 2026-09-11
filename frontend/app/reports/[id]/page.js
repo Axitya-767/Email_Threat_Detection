@@ -40,6 +40,8 @@ export default function CaseReportDetailPage({ params }) {
     );
   }, [caseParamId]);
 
+  const [isMasked, setIsMasked] = useState(true);
+
   if (!caseItem) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center text-ink">
@@ -110,8 +112,6 @@ export default function CaseReportDetailPage({ params }) {
 
   const severityLabel =
     riskScore >= 80 ? "Critical" : riskScore >= 60 ? "High" : riskScore >= 30 ? "Moderate" : "Low";
-
-  const [isMasked, setIsMasked] = useState(true);
 
   const displaySenderName = isMasked ? maskName(senderName) : senderName;
   const displaySenderEmail = isMasked ? maskEmail(senderEmail) : senderEmail;
