@@ -283,10 +283,11 @@ export default function MapView({ data, masked }) {
       .sort((a, b) => a.hop_order - b.hop_order);
   }, [data]);
 
-  // Reset selected hop if active case changes
-  useEffect(() => {
+  const [prevData, setPrevData] = useState(data);
+  if (data !== prevData) {
+    setPrevData(data);
     setSelectedHop(null);
-  }, [data]);
+  }
 
   const pairAnomalies = useMemo(() => getHopPairAnomalies(hops), [hops]);
 

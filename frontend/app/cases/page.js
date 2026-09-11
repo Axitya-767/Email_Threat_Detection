@@ -1,33 +1,58 @@
 'use client';
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, X, ShieldAlert, ChevronRight, FileText, Filter } from "lucide-react";
 import {
   CASES_LIST,
   CATEGORIES,
+  CAMPAIGN_CLUSTERS,
   getRiskBadgeClasses,
   getClassificationBadgeClasses,
+  matchesCampaign,
 } from "../../lib/cases";
 
-export default function CasesPage() {
+function CasesTableContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const campaignParam = searchParams.get("campaign") || searchParams.get("cluster") || "";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [groupByCampaign, setGroupByCampaign] = useState(false);
 
+  // Resolved display name for the active campaign filter chip
+  const displayCampaign = useMemo(() => {
+    if (!campaignParam) return "";
+    const matchedCluster = CAMPAIGN_CLUSTERS.find(
+      (c) =>
+        c.id.toLowerCase() === campaignParam.toLowerCase() ||
+        c.aliases.includes(campaignParam.toLowerCase())
+    );
+    return matchedCluster ? matchedCluster.id : campaignParam.toUpperCase();
+  }, [campaignParam]);
+
+  // Base list of cases scoped to active campaign query (if any)
+  const campaignScopedCases = useMemo(() => {
+    if (!campaignParam) return CASES_LIST;
+    return CASES_LIST.filter((item) => matchesCampaign(item, campaignParam));
+  }, [campaignParam]);
+
+  // Counts for the category pills based on the campaign-scoped cases
   const categoryCounts = useMemo(() => {
-    const counts = { all: CASES_LIST.length, critical: 0, bec: 0, clean: 0 };
-    for (const c of CASES_LIST) {
+    const counts = { all: campaignScopedCases.length, critical: 0, bec: 0, clean: 0 };
+    for (const c of campaignScopedCases) {
       if (counts[c.category] !== undefined) {
         counts[c.category]++;
       }
     }
     return counts;
-  }, []);
+  }, [campaignScopedCases]);
 
+  // Filtered cases based on category and search query
   const filteredCases = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return CASES_LIST.filter((item) => {
+    return campaignScopedCases.filter((item) => {
       // Category filter
       if (activeCategory !== "all" && item.category !== activeCategory) {
         return false;
@@ -54,11 +79,144 @@ export default function CasesPage() {
       }
       return true;
     });
-  }, [searchQuery, activeCategory]);
+  }, [campaignScopedCases, activeCategory, searchQuery]);
+
+  // Grouped cases when "Group by Campaign" is toggled
+  const caseGroups = useMemo(() => {
+    if (!groupByCampaign) return null;
+
+    const cluster1Cases = [];
+    const cluster2Cases = [];
+    const independentCases = [];
+
+    filteredCases.forEach((item) => {
+      if (item.clusterId === "AS61754" || item.clusterId === "AS197540") {
+        cluster1Cases.push(item);
+      } else if (item.clusterId === "AS20262" || item.clusterId === "AS13335") {
+        cluster2Cases.push(item);
+      } else {
+        independentCases.push(item);
+      }
+    });
+
+    const groups = [];
+    if (cluster1Cases.length > 0) {
+      groups.push({
+        id: "AS61754",
+        title: "Threat Cluster AS61754",
+        dotColor: "bg-risk-red",
+        cases: cluster1Cases,
+      });
+    }
+    if (cluster2Cases.length > 0) {
+      groups.push({
+        id: "AS20262",
+        title: "Threat Cluster AS20262",
+        dotColor: "bg-risk-amber",
+        cases: cluster2Cases,
+      });
+    }
+    if (independentCases.length > 0) {
+      groups.push({
+        id: "independent",
+        title: "Independent Cases",
+        dotColor: "bg-dim",
+        cases: independentCases,
+      });
+    }
+
+    return groups;
+  }, [groupByCampaign, filteredCases]);
 
   function handleSelectCase(slug) {
     router.push(`/?case=${slug}`);
   }
+
+  function handleClearCampaignFilter() {
+    router.push("/cases");
+  }
+
+  function handleResetAllFilters() {
+    setSearchQuery("");
+    setActiveCategory("all");
+    if (campaignParam) {
+      router.push("/cases");
+    }
+  }
+
+  const renderCaseRow = (item) => {
+    const score = item.data?.risk_score ?? 0;
+    const classification = item.data?.classification ?? "unknown";
+    const senderName = item.data?.sender?.name ?? "Unknown";
+    const senderEmail = item.data?.sender?.email ?? "unknown@domain";
+    const filename = item.data?.filename ?? "evidence.eml";
+
+    return (
+      <tr
+        key={item.id}
+        onClick={() => handleSelectCase(item.slug)}
+        className="group cursor-pointer transition-colors hover:bg-canvas/80"
+      >
+        {/* Case ID */}
+        <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs font-semibold text-accent">
+          {item.id}
+        </td>
+
+        {/* Case Title & Raw File */}
+        <td className="px-4 py-3.5">
+          <div className="flex flex-col gap-0.5">
+            <span className="font-semibold text-ink group-hover:text-accent transition-colors">
+              {item.name}
+            </span>
+            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-dim">
+              <FileText className="h-3 w-3" />
+              {filename}
+            </span>
+          </div>
+        </td>
+
+        {/* Sender */}
+        <td className="px-4 py-3.5">
+          <div className="flex flex-col">
+            <span className="text-ink">{senderName}</span>
+            <span className="font-mono text-[11px] text-dim">{senderEmail}</span>
+          </div>
+        </td>
+
+        {/* Classification */}
+        <td className="whitespace-nowrap px-4 py-3.5">
+          <span
+            className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium capitalize ${getClassificationBadgeClasses(
+              classification
+            )}`}
+          >
+            {classification.replace("_", " ")}
+          </span>
+        </td>
+
+        {/* Risk Score */}
+        <td className="whitespace-nowrap px-4 py-3.5">
+          <span
+            className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${getRiskBadgeClasses(
+              score
+            )}`}
+          >
+            {score} Risk
+          </span>
+        </td>
+
+        {/* Date */}
+        <td className="whitespace-nowrap px-4 py-3.5 text-dim">
+          {item.date}
+        </td>
+
+        {/* Trailing chevron indicating clickable row */}
+        <td className="whitespace-nowrap px-4 py-3.5 text-right">
+          <ChevronRight className="h-4 w-4 text-dim/50 transition-transform group-hover:translate-x-1 group-hover:text-accent ml-auto" />
+        </td>
+      </tr>
+    );
+  };
 
   return (
     <div className="min-h-screen p-6">
@@ -104,7 +262,7 @@ export default function CasesPage() {
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 text-dim hover:text-ink transition-colors"
+                className="absolute right-2.5 text-dim hover:text-ink transition-colors cursor-pointer"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" />
@@ -112,7 +270,7 @@ export default function CasesPage() {
             )}
           </div>
 
-          {/* Category Filter Pills */}
+          {/* Category Filter Pills & Group By Campaign Toggle */}
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="mr-1 flex items-center gap-1 text-xs text-dim">
               <Filter className="h-3.5 w-3.5" /> Filter:
@@ -125,7 +283,7 @@ export default function CasesPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all cursor-pointer ${
                     isSelected
                       ? "border-accent bg-accent/15 text-accent shadow-xs"
                       : "border-edge bg-canvas/60 text-dim hover:border-edge/80 hover:bg-canvas hover:text-ink"
@@ -140,9 +298,48 @@ export default function CasesPage() {
                 </button>
               );
             })}
+
+            {/* Separator */}
+            <div className="mx-1 h-4 w-px bg-edge hidden sm:block" />
+
+            {/* Group by Campaign Toggle */}
+            <button
+              type="button"
+              onClick={() => setGroupByCampaign((prev) => !prev)}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all cursor-pointer ${
+                groupByCampaign
+                  ? "border-accent bg-accent/15 text-accent shadow-xs ring-1 ring-accent/30"
+                  : "border-edge bg-canvas/60 text-dim hover:border-edge/80 hover:bg-canvas hover:text-ink"
+              }`}
+            >
+              <span>🗂️</span>
+              <span>Group by Campaign</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Active Campaign Filter Chip */}
+      {campaignParam && (
+        <div className="mb-4 flex items-center gap-2 animate-in fade-in duration-150">
+          <span className="text-xs text-dim">Active Filter:</span>
+          <div className="inline-flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/15 px-3 py-1 text-xs font-medium text-accent shadow-xs">
+            <span>🏷️</span>
+            <span>
+              Campaign: {displayCampaign} ({filteredCases.length} {filteredCases.length === 1 ? "Case" : "Cases"})
+            </span>
+            <button
+              type="button"
+              onClick={handleClearCampaignFilter}
+              className="ml-1 rounded p-0.5 text-accent/80 hover:bg-accent/20 hover:text-ink transition-colors cursor-pointer"
+              title="Clear campaign filter and restore full directory"
+              aria-label="Clear campaign filter"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Forensic Case Table */}
       <div className="overflow-hidden rounded-xl border border-edge bg-surface shadow-sm">
@@ -169,16 +366,15 @@ export default function CasesPage() {
                         No matching forensic cases found
                       </p>
                       <p className="text-xs text-dim">
-                        Try adjusting your search query or reset the category filter.
+                        {campaignParam
+                          ? `No cases found for campaign "${displayCampaign}" matching your active filter criteria.`
+                          : "Try adjusting your search query or reset the category filter."}
                       </p>
-                      {(searchQuery || activeCategory !== "all") && (
+                      {(searchQuery || activeCategory !== "all" || campaignParam) && (
                         <button
                           type="button"
-                          onClick={() => {
-                            setSearchQuery("");
-                            setActiveCategory("all");
-                          }}
-                          className="mt-2 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-xs text-accent hover:border-accent transition-colors"
+                          onClick={handleResetAllFilters}
+                          className="mt-2 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-xs text-accent hover:border-accent transition-colors cursor-pointer"
                         >
                           Reset Filters
                         </button>
@@ -186,80 +382,32 @@ export default function CasesPage() {
                     </div>
                   </td>
                 </tr>
-              ) : (
-                filteredCases.map((item) => {
-                  const score = item.data?.risk_score ?? 0;
-                  const classification = item.data?.classification ?? "unknown";
-                  const senderName = item.data?.sender?.name ?? "Unknown";
-                  const senderEmail = item.data?.sender?.email ?? "unknown@domain";
-                  const filename = item.data?.filename ?? "evidence.eml";
-
-                  return (
-                    <tr
-                      key={item.id}
-                      onClick={() => handleSelectCase(item.slug)}
-                      className="group cursor-pointer transition-colors hover:bg-canvas/80"
-                    >
-                      {/* Case ID */}
-                      <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs font-semibold text-accent">
-                        {item.id}
-                      </td>
-
-                      {/* Case Title & Raw File */}
-                      <td className="px-4 py-3.5">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-semibold text-ink group-hover:text-accent transition-colors">
-                            {item.name}
-                          </span>
-                          <span className="inline-flex items-center gap-1 font-mono text-[11px] text-dim">
-                            <FileText className="h-3 w-3" />
-                            {filename}
-                          </span>
+              ) : groupByCampaign && caseGroups ? (
+                caseGroups.map((group) => (
+                  <React.Fragment key={`group-frag-${group.title}`}>
+                    {/* Clean Category Header */}
+                    <tr className="border-y border-edge bg-canvas/90">
+                      <td colSpan={7} className="px-4 py-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className={`h-2 w-2 rounded-full ${group.dotColor}`} />
+                            <span className="font-mono text-xs font-bold text-ink">
+                              {group.title} • {group.cases.length} {group.cases.length === 1 ? "case" : "cases"}
+                            </span>
+                          </div>
+                          {group.id !== "independent" && (
+                            <span className="font-mono text-[10px] text-accent uppercase tracking-wider bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
+                              {group.id}
+                            </span>
+                          )}
                         </div>
-                      </td>
-
-                      {/* Sender */}
-                      <td className="px-4 py-3.5">
-                        <div className="flex flex-col">
-                          <span className="text-ink">{senderName}</span>
-                          <span className="font-mono text-[11px] text-dim">{senderEmail}</span>
-                        </div>
-                      </td>
-
-                      {/* Classification */}
-                      <td className="whitespace-nowrap px-4 py-3.5">
-                        <span
-                          className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium capitalize ${getClassificationBadgeClasses(
-                            classification
-                          )}`}
-                        >
-                          {classification.replace("_", " ")}
-                        </span>
-                      </td>
-
-                      {/* Risk Score */}
-                      <td className="whitespace-nowrap px-4 py-3.5">
-                        <span
-                          className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${getRiskBadgeClasses(
-                            score
-                          )}`}
-                        >
-                          {score} Risk
-                        </span>
-                      </td>
-
-                      {/* Date */}
-                      <td className="whitespace-nowrap px-4 py-3.5 text-dim">
-                        {item.date}
-                      </td>
-
-                      {/* Trailing chevron indicating clickable row */}
-                      <td className="whitespace-nowrap px-4 py-3.5 text-right">
-                        <ChevronRight className="h-4 w-4 text-dim/50 transition-transform group-hover:translate-x-1 group-hover:text-accent ml-auto" />
                       </td>
                     </tr>
-                  );
-                })
+                    {group.cases.map(renderCaseRow)}
+                  </React.Fragment>
+                ))
+              ) : (
+                filteredCases.map(renderCaseRow)
               )}
             </tbody>
           </table>
@@ -270,6 +418,11 @@ export default function CasesPage() {
           <span>
             Showing <strong className="text-ink">{filteredCases.length}</strong> of{" "}
             {CASES_LIST.length} total forensic cases
+            {campaignParam && (
+              <span className="ml-1 text-accent font-medium">
+                (filtered by campaign {displayCampaign})
+              </span>
+            )}
           </span>
           <span className="text-[11px]">
             Click any row to open in investigation dashboard
@@ -277,5 +430,19 @@ export default function CasesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CasesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen p-6 text-xs text-dim">
+          Loading forensic case archive...
+        </div>
+      }
+    >
+      <CasesTableContent />
+    </Suspense>
   );
 }
