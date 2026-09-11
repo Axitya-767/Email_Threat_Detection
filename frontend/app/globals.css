@@ -1,13 +1,48 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
-html {
+@theme {
+  --color-canvas: #0B0E14;
+  --color-surface: #12151C;
+  --color-edge: #222733;
+  --color-ink: #E4E6EB;
+  --color-dim: #8B909C;
+  --color-accent: #6ea3d8;
+  --color-risk-red: #DC2F3D;
+  --color-risk-amber: #D4A237;
+  --color-risk-green: #16a34a;
+}
+
+:root, html.dark {
+  --color-canvas: #0B0E14;
+  --color-surface: #12151C;
+  --color-edge: #222733;
+  --color-ink: #E4E6EB;
+  --color-dim: #8B909C;
+  --color-accent: #6ea3d8;
+  --color-risk-red: #DC2F3D;
+  --color-risk-amber: #D4A237;
+  --color-risk-green: #16a34a;
   color-scheme: dark;
+}
+
+html.light {
+  --color-canvas: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-edge: #E2E8F0;
+  --color-ink: #0F172A;
+  --color-dim: #64748B;
+  --color-accent: #2563EB;
+  --color-risk-red: #DC2F3D;
+  --color-risk-amber: #D97706;
+  --color-risk-green: #16A34A;
+  color-scheme: light;
 }
 
 body {
   background-color: var(--color-canvas);
   color: var(--color-ink);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Hide dashboard sidebar on login/auth page */

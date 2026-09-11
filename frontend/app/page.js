@@ -160,7 +160,7 @@ function DashboardContent() {
 
           <div className="flex items-center gap-3">
             <PrivacyToggle data={data} masked={masked} setMasked={setMasked} />
-            <ReportButton data={data} masked={masked} />
+            <ReportButton data={data} masked={masked} caseId={activeCaseMeta?.id} />
           </div>
         </div>
 
@@ -314,11 +314,11 @@ function DashboardContent() {
             Routing & Correlation
           </h2>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
-            <div className="lg:col-span-5 flex flex-col">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
+            <div className="lg:col-span-5 flex flex-col h-full">
               <MapView data={data} masked={masked} />
             </div>
-            <div className="lg:col-span-7 flex flex-col">
+            <div className="lg:col-span-7 flex flex-col h-full">
               <GraphView data={data} masked={masked} />
             </div>
           </div>
@@ -341,7 +341,7 @@ function DashboardContent() {
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                <ReportButton data={data} masked={masked} />
+                <ReportButton data={data} masked={masked} caseId={activeCaseMeta?.id} />
                 <Link
                   href="/cases"
                   className="inline-flex items-center gap-2 rounded-lg border border-edge bg-canvas px-4 py-2 text-xs font-medium text-ink hover:border-accent hover:text-accent transition-colors"

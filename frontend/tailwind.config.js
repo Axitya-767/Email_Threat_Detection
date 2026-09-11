@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: [
     "./app/**/*.{js,jsx}",
     "./components/**/*.{js,jsx}",
@@ -11,16 +12,30 @@ module.exports = {
         mono: ["var(--font-jetbrains-mono)", "ui-monospace", "monospace"],
       },
       colors: {
-        canvas: "#1b1e24",
-        surface: "#262b33",
-        edge: "#3d444e",
-        ink: "#e8eaed",
-        dim: "#8f96a1",
-        accent: "#3b6998", // deep slate-blue for premium forensic tone
+        canvas: "#0B0E14",
+        surface: "#12151C",
+        edge: "#222733",
+        ink: "#E4E6EB",
+        dim: "#8B909C",
+        accent: "#6ea3d8",
         risk: {
-          red: "#b91c1c",   // deep red-700 (critical severity)
-          amber: "#d97706", // medium severity
-          green: "#16a34a", // clean severity
+          red: "#DC2F3D",
+          amber: "#D4A237",
+          green: "#16a34a",
+        },
+        // Basic light palette for presentation & report generation
+        light: {
+          canvas: "#F8FAFC",
+          surface: "#FFFFFF",
+          edge: "#E2E8F0",
+          ink: "#0F172A",
+          dim: "#64748B",
+          accent: "#2563EB",
+          risk: {
+            red: "#DC2F3D",
+            amber: "#D4A237",
+            green: "#16a34a",
+          },
         },
       },
     },
